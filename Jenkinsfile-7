@@ -155,7 +155,7 @@ pipeline {
                     if ! python3 -c "import psutil" >/dev/null 2>&1; then pip install --break-system-packages psutil; fi
                     if ! command -v az >/dev/null 2>&1; then pip install --break-system-packages azure-cli; fi
 
-                    # Verify Azure CLI installation
+                    # Verify Azure CLI installation updated
                     az version
                     '''
                     script {
