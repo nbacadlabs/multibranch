@@ -111,6 +111,6 @@ resource "azurerm_linux_virtual_machine" "nbaks_vm" {
   }
 
   custom_data = base64encode(file("jenkins-install.sh"))
-  # custom_data = filebase64("cloud_init.yaml")
+  # custom_data = filebase64("cloud_init.yaml")bnv
 }
 
