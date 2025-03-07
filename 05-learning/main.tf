@@ -86,6 +86,7 @@ resource "azurerm_linux_virtual_machine" "nbaks_vm" {
   size                  = "Standard_DS1_v2"
   admin_username        = var.admin_username
   network_interface_ids = [azurerm_network_interface.vm_nic.id]
+  disable_password_authentication = false
 
   # admin_ssh_key {
   #   username   = var.admin_username
