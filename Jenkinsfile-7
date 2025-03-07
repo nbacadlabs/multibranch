@@ -1,5 +1,5 @@
 pipeline {
-     agent {
+    agent {
         kubernetes {
             yaml '''
             apiVersion: v1
@@ -17,9 +17,6 @@ pipeline {
                 image: mcr.microsoft.com/azure-cli
                 command: [ "sleep" ]
                 args: [ "infinity" ]
-            volumes:
-              - name: azure-cli
-                emptyDir: {}
             '''
         }
     }
