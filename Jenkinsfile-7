@@ -133,6 +133,13 @@ pipeline {
                 }
 
                 container('terraform') {
+                    script {
+                        withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
+                            sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                            '''
+                        }
+                    }
                     sh '''
                     cd ./05-learning
                     terraform plan
