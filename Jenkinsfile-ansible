@@ -34,17 +34,19 @@ pipeline {
         stage('Install Ansible') {
             steps {
                 container('ansible') {
+                       // if ! command -v az &> /dev/null; then
+                    //    else
+                    //     echo "Azure CLI is already installed."
+                    // fi
                     sh '''
                     apk update
-                    if ! command -v az &> /dev/null; then
-                        echo "Azure CLI not found. Installing..."
-                        apk add --no-cache curl bash jq sudo python3 py3-pip  gcc musl-dev libffi-dev
-                        python3 -m pip install --upgrade pip setuptools wheel
-                        pip install --no-cache-dir ansible
-                        pip install azure-cli
-                    else
-                        echo "Azure CLI is already installed."
-                    fi
+                 
+                    echo "Azure CLI not found. Installing..."
+                    apk add --no-cache curl bash jq sudo python3 py3-pip  gcc musl-dev libffi-dev
+                    python3 -m pip install --upgrade pip setuptools wheel
+                    pip install --no-cache-dir ansible
+                    pip install azure-cli
+                    
                     ansible --version  # Verify installation
                     '''
                 }
