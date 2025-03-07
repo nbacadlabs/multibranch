@@ -99,18 +99,6 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                 container('azure-cli') {
-                    sh '''
-                    if ! command -v az &> /dev/null; then
-                        echo "Azure CLI not found. Installing..."
-                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-                        python3 -m pip install --upgrade pip setuptools wheel
-                        pip install azure-cli
-                    else
-                        echo "Azure CLI is already installed."
-                    fi
-                    '''
-                }
                 container('terraform') {
                     sh '''
                     cd ./05-learning
@@ -125,7 +113,7 @@ pipeline {
                 container('terraform') {
                     sh '''
                     cd ./05-learning
-                    terraform plan -out=tfplan
+                    terraform plan
                     '''
                 }
             }
@@ -136,7 +124,7 @@ pipeline {
                 container('terraform') {
                     sh '''
                     cd ./05-learning
-                    terraform apply -auto-approve tfplan
+                    terraform apply -auto-approve
                     '''
                 }
             }
