@@ -135,6 +135,8 @@ pipeline {
                 container('terraform') {
                     sh '''
                     apk add --no-cache curl bash jq unzip python3 py3-pip
+                    apk add --no-cache gcc python3-dev musl-dev linux-headers
+                    pip install --break-system-packages psutil
                     pip install --break-system-packages azure-cli
                     az version  # Verify installation
                     '''
