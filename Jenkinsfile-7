@@ -121,7 +121,17 @@ pipeline {
                         echo "Azure CLI is already installed."
                     fi
                     '''
+                    script {
+                        withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
+                            sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                            az account show
+                            az list account
+                            '''
+                        }
+                    }
                 }
+
                 container('terraform') {
                     sh '''
                     cd ./05-learning
