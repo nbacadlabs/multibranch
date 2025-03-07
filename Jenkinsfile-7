@@ -60,6 +60,7 @@ pipeline {
         stage('Azure Login') {
             steps {
                 container('azure-cli') {
+                     // Install Python if it is not available
                     sh '''
                     if ! command -v python3 &> /dev/null
                     then
@@ -67,6 +68,15 @@ pipeline {
                         apk add --no-cache python3 py3-pip
                     else
                         echo "Python3 is already installed"
+                    fi
+                    
+                    # Install pip manually if not available
+                    if ! python3 -m pip --version &> /dev/null
+                    then
+                        echo "pip could not be found. Installing..."
+                        python3 -m ensurepip --upgrade
+                    else
+                        echo "pip is already installed"
                     fi
                     
                     # Upgrade pip, setuptools, and wheel
