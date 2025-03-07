@@ -55,7 +55,7 @@ pipeline {
               python3 -m pip install --upgrade pip setuptools wheel
               pip install azure-cli
             '''
-            // Verify Azure CLI installation
+            // Verify Azure CLI installation new files
             sh 'az version'
             script {
                     withCredentials([azureServicePrincipal('Azure_SP_ID')]) {

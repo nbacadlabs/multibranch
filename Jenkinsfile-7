@@ -1,0 +1,115 @@
+pipeline {
+    agent {
+        kubernetes {
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+              - name: terraform
+                image: hashicorp/terraform:latest
+                command: [ "sleep" ]
+                args: [ "infinity" ]
+              - name: azure-cli
+                image: mcr.microsoft.com/azure-cli
+                command: [ "sleep" ]
+                args: [ "infinity" ]
+            '''
+        }
+    }
+
+    environment {
+        ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Terraform & Azure CLI if not installed') {
+            steps {
+                container('terraform') {
+                    sh '''
+                    if ! command -v terraform &> /dev/null; then
+                        echo "Terraform not found. Installing..."
+                        apk add --no-cache terraform
+                    else
+                        echo "Terraform is already installed."
+                    fi
+                    '''
+                }
+
+                container('azure-cli') {
+                    sh '''
+                    if ! command -v az &> /dev/null; then
+                        echo "Azure CLI not found. Installing..."
+                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
+                        python3 -m pip install --upgrade pip setuptools wheel
+                        pip install azure-cli
+                    else
+                        echo "Azure CLI is already installed."
+                    fi
+                    '''
+                }
+            }
+        }
+
+        stage('Azure Login') {
+            steps {
+                container('azure-cli') {
+                    sh '''
+                    az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                    az account set --subscription $ARM_SUBSCRIPTION_ID
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                container('terraform') {
+                    sh '''
+                    terraform init
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                container('terraform') {
+                    sh '''
+                    terraform plan -out=tfplan
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                container('terraform') {
+                    sh '''
+                    terraform apply -auto-approve tfplan
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            container('azure-cli') {
+                sh 'az logout'
+            }
+        }
+        success {
+            echo 'Terraform deployment completed successfully!'
+        }
+        failure {
+            echo 'Terraform deployment failed!'
+        }
+    }
+}
