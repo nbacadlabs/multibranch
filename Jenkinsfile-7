@@ -10,9 +10,6 @@ pipeline {
                 image: hashicorp/terraform:latest
                 command: [ "sleep" ]
                 args: [ "infinity" ]
-                volumeMounts:
-                  - name: azure-cli
-                    mountPath: /usr/bin/az
               - name: azure-cli
                 image: mcr.microsoft.com/azure-cli
                 command: [ "sleep" ]
@@ -102,6 +99,18 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
+                 container('azure-cli') {
+                    sh '''
+                    if ! command -v az &> /dev/null; then
+                        echo "Azure CLI not found. Installing..."
+                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
+                        python3 -m pip install --upgrade pip setuptools wheel
+                        pip install azure-cli
+                    else
+                        echo "Azure CLI is already installed."
+                    fi
+                    '''
+                }
                 container('terraform') {
                     sh '''
                     cd ./05-learning
@@ -114,14 +123,6 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 container('terraform') {
-                    // script {
-                    //     withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-                    //         sh '''
-                    //         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                    //         az account set --subscription $ARM_SUBSCRIPTION_ID
-                    //         '''
-                    //     }
-                    // }
                     sh '''
                     cd ./05-learning
                     terraform plan -out=tfplan
