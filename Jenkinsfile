@@ -32,7 +32,7 @@ pipeline {
               # Installation terraform
               TERRAFORM_VERSION=$(curl -sL https://api.github.com/repos/hashicorp/terraform/releases/latest | grep '"tag_name"' | cut -d '"' -f 4 | sed 's/v//')
               curl -fsSL -o terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
-              unzip terraform.zip
+              unzip terraform.zips
               mv terraform /usr/local/bin/
               chmod +x /usr/local/bin/terraform
               terraform version
