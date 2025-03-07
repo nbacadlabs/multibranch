@@ -82,6 +82,7 @@ pipeline {
             steps {
                 container('terraform') {
                     sh '''
+                    cd 05-learning
                     terraform plan -out=tfplan
                     '''
                 }
@@ -92,6 +93,7 @@ pipeline {
             steps {
                 container('terraform') {
                     sh '''
+                    cd 05-learning
                     terraform apply -auto-approve tfplan
                     '''
                 }
