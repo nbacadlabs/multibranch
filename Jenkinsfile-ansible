@@ -56,7 +56,6 @@ pipeline {
                     if ! command -v az >/dev/null 2>&1; then pip install --break-system-packages azure-cli; fi
 
                     # Verify Azure CLI installation updated
-                    az version
                     pip install --no-cache-dir ansible
                     pip install azure-cli
                     
