@@ -85,6 +85,7 @@ resource "azurerm_linux_virtual_machine" "nbaks_vm" {
   location              = var.location
   size                  = "Standard_DS1_v2"
   admin_username        = var.admin_username
+  admin_password        = "+Laravan2010"
   network_interface_ids = [azurerm_network_interface.vm_nic.id]
   disable_password_authentication = false
 
