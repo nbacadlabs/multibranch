@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  SQL_ENGINE: "django.db.backends.mysql"
+  SQL_DATABASE: "msdb"
+  SQL_USER: "nbadmin"
+  SQL_PASSWORD: "+Laravan2010"
+  SQL_HOST: "192.168.2.34"
+  SQL_PORT: "3306"

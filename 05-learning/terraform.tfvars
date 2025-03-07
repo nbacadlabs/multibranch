@@ -1,0 +1,5 @@
+resource_group_name="nbtest-rg"
+location="eastus"
+vm_name = "nbtest-vm"
+admin_username = "nbadmin"
+ssh_key_path   = "~/.ssh/id_rsa.pub"

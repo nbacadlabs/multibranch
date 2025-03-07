@@ -1,0 +1,27 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - openjdk-17-jdk
+  - jenkins
+  
+runcmd:
+  - sudo apt update
+  - sudo apt install -y openjdk-17-jre
+  - echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+  - sudo apt-get update
+  - sudo ufw allow 8080
+  - sudo ufw allow OpenSSH
+  - sudo ufw allow 22/tcp
+  - sudo ufw allow 443/tcp
+  - sudo ufw allow 80/tcp
+  - sudo ufw allow 8080/tcp
+  - sudo chmod 644 /usr/share/keyrings/jenkins-keyring.asc
+  - sudo apt-get install jenkins
+  - cat /var/lib/jenkins/secrets/initialAdminPassword
+  - sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+  - sudo systemctl enable jenkins
+  - sudo ufw enable -yes
+ 
+  
