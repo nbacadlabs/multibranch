@@ -30,5 +30,5 @@ variable "resource_group_name" {
 }
 variable "vm_name" { type=string}
 variable "admin_username" { type=string}
-variable "ssh_key_path" { type=string}
+# variable "ssh_key_path" { type=string}
 
