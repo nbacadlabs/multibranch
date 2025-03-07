@@ -90,17 +90,30 @@ pipeline {
             steps {
                 container('terraform') {
                     sh '''
+                    # Ensure Python3 is installed
+                    apk add --no-cache python3 py3-pip
+
+                    # Ensure virtual environment tools are installed
+                    apk add --no-cache py3-virtualenv
+
+                    # Install Azure CLI only if it's not found
                     if ! command -v az &> /dev/null; then
                         echo "Azure CLI not found. Installing..."
+                        
+                        # Install dependencies for Azure CLI
+                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
+
+                        # Create a virtual environment
                         python3 -m venv venv
                         source venv/bin/activate
+                        
+                        # Upgrade pip and install Azure CLI
                         pip install --upgrade pip setuptools wheel
-
                         pip install azure-cli
-                    else
-                        echo "Azure CLI is already installed."
                     fi
-                    az --version
+
+                    # Verify installation
+                    az version
                     '''
                     script {
                         withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
