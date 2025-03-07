@@ -87,10 +87,10 @@ resource "azurerm_linux_virtual_machine" "nbaks_vm" {
   admin_username        = var.admin_username
   network_interface_ids = [azurerm_network_interface.vm_nic.id]
 
-  admin_ssh_key {
-    username   = var.admin_username
-    public_key = file(var.ssh_key_path)
-  }
+  # admin_ssh_key {
+  #   username   = var.admin_username
+  #   public_key = file("$SSH_KEY")
+  # }
 
   os_disk {
     caching              = "ReadWrite"
