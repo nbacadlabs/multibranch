@@ -4,20 +4,20 @@ variable "subscription_id" {
   type = string
 }
 
-variable "tenant_id" {
-  description = "Tenant id"
-  type = string
-}
+# variable "tenant_id" {
+#   description = "Tenant id"
+#   type = string
+# }
 
-variable "client_id" {
-  description = "Client ID"
-  type = string
-}
+# variable "client_id" {
+#   description = "Client ID"
+#   type = string
+# }
 
-variable "client_secret" {
-  description = "Client secret"
-  type = string
-}
+# variable "client_secret" {
+#   description = "Client secret"
+#   type = string
+# }
 
 variable "location" {
   description = "where to deployment"
