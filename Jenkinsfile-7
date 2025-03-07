@@ -134,8 +134,10 @@ pipeline {
 
                 container('terraform') {
                     sh '''
-                    apk add --update --no-cache curl bash jq unzip
-                    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+                    apk add --update --no-cache curl bash jq unzip py3-pip python3-dev gcc musl-dev libffi-dev openssl-dev cargo
+                    # Upgrade pip and install Azure CLI
+                    python3 -m pip install --upgrade pip setuptools wheel
+                    pip install azure-cli
                     az version
                     '''
                     script {
