@@ -61,6 +61,18 @@ pipeline {
             steps {
                 container('azure-cli') {
                     sh '''
+                    if ! command -v python3 &> /dev/null
+                    then
+                        echo "Python3 could not be found. Installing..."
+                        apk add --no-cache python3 py3-pip
+                    else
+                        echo "Python3 is already installed"
+                    fi
+                    
+                    # Upgrade pip, setuptools, and wheel
+                    python3 -m pip install --upgrade pip setuptools wheel
+                    '''
+                    sh '''
                     az --version
                     '''
                     script {
@@ -97,12 +109,6 @@ pipeline {
                     //         '''
                     //     }
                     // }
-                    sh '''
-                    # Upgrade pip and install Azure CLI
-                    python3 -m pip install --upgrade pip setuptools wheel
-                    pip install azure-cli
-                    '''
-                    // Verify Azure CLI installation new files
                     sh 'az version'
                     sh '''
                     cd ./05-learning
