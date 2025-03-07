@@ -1,8 +1,5 @@
 # Azure Subscription and Authentication
 subscription_id  = "a3fcb44b-8229-4e41-99c5-fbebb9ffb8bf"
-# tenant_id        = "87654321-4321-4321-4321-cba987654321"
-# client_id        = "abcdef12-3456-7890-abcd-ef1234567890"
-# client_secret    = "your-secure-client-secret"
 
 # # Resource Group and Storage Account for Backend
 
