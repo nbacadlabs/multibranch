@@ -79,6 +79,8 @@ pipeline {
             steps {
                 container('terraform') {
                     sh '''
+                    pwd
+                    ls -R /home/jenkins/agent/workspace/terraform-pipeline_main
                     terraform init
                     '''
                 }
