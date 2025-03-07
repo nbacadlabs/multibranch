@@ -8,50 +8,36 @@ pipeline {
               containers:
               - name: terraform
                 image: hashicorp/terraform:latest
-                command: [ "sleep" ]
-                args: [ "infinity" ]
-              - name: azure-cli
-                image: mcr.microsoft.com/azure-cli
-                command: [ "sleep" ]
-                args: [ "infinity" ]
+                command:
+                - cat
+                tty: true
+              - name: azurecli
+                image: mcr.microsoft.com/azure-cli:latest
+                command:
+                - cat
+                tty: true
             '''
         }
     }
 
     environment {
-        ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+        TF_VAR_client_id = credentials('AZURE_CLIENT_ID')
+        TF_VAR_client_secret = credentials('AZURE_CLIENT_SECRET')
+        TF_VAR_tenant_id = credentials('AZURE_TENANT_ID')
+        TF_VAR_subscription_id = credentials('AZURE_SUBSCRIPTION_ID')
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Install Azure CLI (If Needed)') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Terraform & Azure CLI if not installed') {
-            steps {
-                container('terraform') {
+                container('azurecli') {
                     sh '''
-                    if ! command -v terraform &> /dev/null; then
-                        echo "Terraform not found. Installing..."
-                        apk add --no-cache terraform
-                    else
-                        echo "Terraform is already installed."
-                    fi
-                    '''
-                }
-
-                container('azure-cli') {
-                    sh '''
-                    if ! command -v az &> /dev/null; then
-                        echo "Azure CLI not found. Installing..."
-                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-                        python3 -m pip install --upgrade pip setuptools wheel
-                        pip install azure-cli
-                    else
-                        echo "Azure CLI is already installed."
-                    fi
+                        if ! command -v az &> /dev/null; then
+                            apk update && apk add --no-cache curl bash py3-pip
+                            python3 -m pip install --upgrade pip setuptools
+                            pip install azure-cli
+                        fi
+                        az version
                     '''
                 }
             }
@@ -59,17 +45,18 @@ pipeline {
 
         stage('Azure Login') {
             steps {
-                container('azure-cli') {
-                    sh '''
-                    az --version
-                    '''
-                    script {
-                        withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account set --subscription $ARM_SUBSCRIPTION_ID
-                            '''
-                        }
+                container('azurecli') {
+                    withCredentials([
+                        string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
+                        string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET'),
+                        string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID')
+                    ]) {
+                        sh '''
+                            az login --service-principal \
+                                -u "$AZURE_CLIENT_ID" \
+                                -p "$AZURE_CLIENT_SECRET" \
+                                --tenant "$AZURE_TENANT_ID"
+                        '''
                     }
                 }
             }
@@ -78,10 +65,8 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 container('terraform') {
-                    sh '''
                     cd ./05-learning
-                    terraform init
-                    '''
+                    sh 'terraform init'
                 }
             }
         }
@@ -89,44 +74,8 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 container('terraform') {
-                    sh '''
-                    # Ensure Python3 is installed
-                    apk add --no-cache python3 py3-pip
-
-                    # Ensure virtual environment tools are installed
-                    apk add --no-cache py3-virtualenv
-
-                    # Install Azure CLI only if it's not found
-                    if ! command -v az &> /dev/null; then
-                        echo "Azure CLI not found. Installing..."
-                        
-                        # Install dependencies for Azure CLI
-                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-
-                        # Create a virtual environment
-                        python3 -m venv venv
-                        source venv/bin/activate
-                        
-                        # Upgrade pip and install Azure CLI
-                        pip install --upgrade pip setuptools wheel
-                        pip install azure-cli
-                    fi
-
-                    # Verify installation
-                    az version
-                    '''
-                    script {
-                        withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-           
-                            '''
-                        }
-                    }
-                    sh '''
                     cd ./05-learning
-                    terraform plan -out=tfplan
-                    '''
+                    sh 'terraform plan -out=tfplan'
                 }
             }
         }
@@ -134,26 +83,172 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 container('terraform') {
-                    sh '''
                     cd ./05-learning
-                    terraform apply -auto-approve tfplan
-                    '''
+                    input message: 'Do you want to apply these changes?', ok: 'Apply'
+                    sh 'terraform apply -auto-approve tfplan'
                 }
             }
         }
     }
-
-    post {
-        always {
-            container('azure-cli') {
-                sh 'az logout'
-            }
-        }
-        success {
-            echo 'Terraform deployment completed successfully!'
-        }
-        failure {
-            echo 'Terraform deployment failed!'
-        }
-    }
 }
+
+
+
+// pipeline {
+//     agent {
+//         kubernetes {
+//             yaml '''
+//             apiVersion: v1
+//             kind: Pod
+//             spec:
+//               containers:
+//               - name: terraform
+//                 image: hashicorp/terraform:latest
+//                 command: [ "sleep" ]
+//                 args: [ "infinity" ]
+//               - name: azure-cli
+//                 image: mcr.microsoft.com/azure-cli
+//                 command: [ "sleep" ]
+//                 args: [ "infinity" ]
+//             '''
+//         }
+//     }
+
+//     environment {
+//         ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+//     }
+
+//     stages {
+//         stage('Checkout Code') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+
+//         stage('Install Terraform & Azure CLI if not installed') {
+//             steps {
+//                 container('terraform') {
+//                     sh '''
+//                     if ! command -v terraform &> /dev/null; then
+//                         echo "Terraform not found. Installing..."
+//                         apk add --no-cache terraform
+//                     else
+//                         echo "Terraform is already installed."
+//                     fi
+//                     '''
+//                 }
+
+//                 container('azure-cli') {
+//                     sh '''
+//                     if ! command -v az &> /dev/null; then
+//                         echo "Azure CLI not found. Installing..."
+//                         apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
+//                         python3 -m pip install --upgrade pip setuptools wheel
+//                         pip install azure-cli
+//                     else
+//                         echo "Azure CLI is already installed."
+//                     fi
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Azure Login') {
+//             steps {
+//                 container('azure-cli') {
+//                     sh '''
+//                     az --version
+//                     '''
+//                     script {
+//                         withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
+//                             sh '''
+//                             az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+//                             az account set --subscription $ARM_SUBSCRIPTION_ID
+//                             '''
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+
+//         stage('Terraform Init') {
+//             steps {
+//                 container('terraform') {
+//                     sh '''
+//                     cd ./05-learning
+//                     terraform init
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Terraform Plan') {
+//             steps {
+//                 container('terraform') {
+//                     sh '''
+//                     # Ensure Python3 is installed
+//                     apk add --no-cache python3 py3-pip
+
+//                     # Ensure virtual environment tools are installed
+//                     apk add --no-cache py3-virtualenv
+
+//                     # Install Azure CLI only if it's not found
+//                     if ! command -v az &> /dev/null; then
+//                         echo "Azure CLI not found. Installing..."
+                        
+//                         # Install dependencies for Azure CLI
+//                         apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
+
+//                         # Create a virtual environment
+//                         python3 -m venv venv
+//                         source venv/bin/activate
+                        
+//                         # Upgrade pip and install Azure CLI
+//                         pip install --upgrade pip setuptools wheel
+//                         pip install azure-cli
+//                     fi
+
+//                     # Verify installation
+//                     az version
+//                     '''
+//                     script {
+//                         withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
+//                             sh '''
+//                             az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+//                             '''
+//                         }
+//                     }
+//                     sh '''
+//                     cd ./05-learning
+//                     terraform plan -out=tfplan
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Terraform Apply') {
+//             steps {
+//                 container('terraform') {
+//                     sh '''
+//                     cd ./05-learning
+//                     terraform apply -auto-approve tfplan
+//                     '''
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         always {
+//             container('azure-cli') {
+//                 sh 'az logout'
+//             }
+//         }
+//         success {
+//             echo 'Terraform deployment completed successfully!'
+//         }
+//         failure {
+//             echo 'Terraform deployment failed!'
+//         }
+//     }
+// }
