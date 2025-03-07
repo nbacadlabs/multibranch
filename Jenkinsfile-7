@@ -92,8 +92,10 @@ pipeline {
                     sh '''
                     if ! command -v az &> /dev/null; then
                         echo "Azure CLI not found. Installing..."
-                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-                        python3 -m pip install --upgrade pip setuptools wheel
+                        python3 -m venv venv
+                        source venv/bin/activate
+                        pip install --upgrade pip setuptools wheel
+
                         pip install azure-cli
                     else
                         echo "Azure CLI is already installed."
