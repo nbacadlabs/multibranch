@@ -76,7 +76,8 @@ pipeline {
             steps {
                 container('ansible') {
                     sh '''
-                    cd ./06-ansiblefiles/
+                    find /home/jenkins/agent/workspace/multibranch-sample-app_main -name "01-create_rg.yaml"
+                    cd ./06-ansiblefiles
                     ansible-playbook 01-create_rg.yaml --extra-vars "name=$RESOURCE_GROUP location=eastus"
                     '''
                 }
