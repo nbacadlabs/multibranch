@@ -10,10 +10,16 @@ pipeline {
                 image: hashicorp/terraform:latest
                 command: [ "sleep" ]
                 args: [ "infinity" ]
+                volumeMounts:
+                  - name: azure-cli
+                    mountPath: /usr/bin/az
               - name: azure-cli
                 image: mcr.microsoft.com/azure-cli
                 command: [ "sleep" ]
                 args: [ "infinity" ]
+            volumes:
+              - name: azure-cli
+                emptyDir: {}
             '''
         }
     }
