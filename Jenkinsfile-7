@@ -43,16 +43,27 @@ pipeline {
                 }
 
                 container('azure-cli') {
-                    sh '''
-                    if ! command -v az &> /dev/null; then
-                        echo "Azure CLI not found. Installing..."
-                        apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-                        python3 -m pip install --upgrade pip setuptools wheel
-                        pip install azure-cli
-                    else
-                        echo "Azure CLI is already installed."
-                    fi
+                   sh '''
+                    # Update package lists
+                    apk update
+                    # Install required dependencies
+                    apk add --no-cache curl bash jq sudo unzip py3-pip python3-dev gcc musl-dev libffi-dev openssl-dev cargo
+                    # Install Rust and Cargo
+                    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+                    
+                    # Ensure Cargo is in PATH
+                    export PATH="$HOME/.cargo/bin:$PATH"
+
+                    # Verify Rust and Cargo installation
+                    rustc --version
+                    cargo --version
+
+                    # Upgrade pip and install Azure CLI
+                    python3 -m pip install --upgrade pip setuptools wheel
+                    pip install azure-cli
                     '''
+                    // Verify Azure CLI installation new files
+                    sh 'az version'
                 }
             }
         }
