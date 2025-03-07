@@ -119,7 +119,6 @@ pipeline {
                     //         '''
                     //     }
                     // }
-                    sh 'az version'
                     sh '''
                     cd ./05-learning
                     terraform plan -out=tfplan
