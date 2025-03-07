@@ -89,14 +89,14 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 container('terraform') {
-                    script {
-                        withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account set --subscription $ARM_SUBSCRIPTION_ID
-                            '''
-                        }
-                    }
+                    // script {
+                    //     withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
+                    //         sh '''
+                    //         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                    //         az account set --subscription $ARM_SUBSCRIPTION_ID
+                    //         '''
+                    //     }
+                    // }
                     sh '''
                     cd ./05-learning
                     terraform plan -out=tfplan
