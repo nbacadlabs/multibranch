@@ -79,8 +79,7 @@ pipeline {
             steps {
                 container('terraform') {
                     sh '''
-                    pwd
-                    ls -R /home/jenkins/agent/workspace/terraform-pipeline_main
+                    cd ./05-learning
                     terraform init
                     '''
                 }
@@ -91,7 +90,7 @@ pipeline {
             steps {
                 container('terraform') {
                     sh '''
-                    cd 05-learning
+                    cd ./05-learning
                     terraform plan -out=tfplan
                     '''
                 }
