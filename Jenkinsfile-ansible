@@ -14,6 +14,10 @@ pipeline {
                 image: mcr.microsoft.com/azure-cli
                 command: [ "sleep" ]
                 args: [ "infinity" ]
+              - name: ansible
+                image: python:3.12-alpine  # Add Ansible container
+                command: [ "sleep" ]
+                args: [ "infinity" ]
             '''
         }
     }
@@ -31,49 +35,44 @@ pipeline {
                 checkout scm
             }
         }
+
         stage('Install Ansible') {
             steps {
                 container('ansible') {
-                       // if ! command -v az &> /dev/null; then
-                    //    else
-                    //     echo "Azure CLI is already installed."
-                    // fi
                     sh '''
                     apk update
-                 
-                    # Install only if not already installed
-                    if ! command -v curl >/dev/null 2>&1; then apk add --no-cache curl; fi
-                    if ! command -v bash >/dev/null 2>&1; then apk add --no-cache bash; fi
-                    if ! command -v jq >/dev/null 2>&1; then apk add --no-cache jq; fi
-                    if ! command -v unzip >/dev/null 2>&1; then apk add --no-cache unzip; fi
-                    if ! command -v python3 >/dev/null 2>&1; then apk add --no-cache python3 py3-pip; fi
-
-                    # Check if GCC and other dependencies are installed before installing
-                    if ! command -v gcc >/dev/null 2>&1; then apk add --no-cache gcc python3-dev musl-dev linux-headers; fi
-
-                    # Install pip packages only if not installed
-                    if ! python3 -c "import psutil" >/dev/null 2>&1; then pip install --break-system-packages psutil; fi
-                    if ! command -v az >/dev/null 2>&1; then pip install --break-system-packages azure-cli; fi
-
-                    # Verify Azure CLI installation updated
-                    pip install --no-cache-dir ansible
-                    pip install azure-cli
                     
-                    ansible --version  # Verify installation
+                    # Install missing dependencies
+                    for pkg in curl bash jq unzip python3 py3-pip; do
+                        if ! command -v $pkg >/dev/null 2>&1; then apk add --no-cache $pkg; fi
+                    done
+                    
+                    # Install Ansible if not already installed
+                    if ! command -v ansible >/dev/null 2>&1; then pip install --no-cache-dir ansible; fi
+                    
+                    ansible --version
                     '''
                 }
-                script {
-                    withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-                        sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account show
-                        az group list --query "[?location=='eastus']"
-                        '''
+            }
+        }
+
+        stage('Azure Login & Test') {
+            steps {
+                container('azure-cli') {
+                    script {
+                        withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
+                            sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                            az account show
+                            az group list --query "[?location=='eastus']"
+                            '''
+                        }
                     }
                 }
             }
         }
-        stage('Run Test') {
+
+        stage('Run Ansible Playbook') {
             steps {
                 container('ansible') {
                     sh '''
@@ -83,174 +82,19 @@ pipeline {
                 }
             }
         }
+    }
 
-    //     stage('Install Terraform & Azure CLI if not installed') {
-    //         steps {
-    //             container('terraform') {
-    //                 sh '''
-    //                 if ! command -v terraform &> /dev/null; then
-    //                     echo "Terraform not found. Installing..."
-    //                     apk add --no-cache terraform
-    //                 else
-    //                     echo "Terraform is already installed."
-    //                 fi
-    //                 '''
-    //             }
-
-    //             container('azure-cli') {
-    //                 sh '''
-    //                 if ! command -v az &> /dev/null; then
-    //                     echo "Azure CLI not found. Installing..."
-    //                     apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-    //                     python3 -m pip install --upgrade pip setuptools wheel
-    //                     pip install azure-cli
-    //                 else
-    //                     echo "Azure CLI is already installed."
-    //                 fi
-    //                 '''
-    //             }
-    //         }
-    //     }
-
-    //     stage('Azure Login') {
-    //         steps {
-    //             container('azure-cli') {
-    //                  // Install Python if it is not available
-    //                 sh '''
-    //                 if ! command -v python3 &> /dev/null
-    //                 then
-    //                     echo "Python3 could not be found. Installing..."
-    //                     apk add --no-cache python3 py3-pip
-    //                 else
-    //                     echo "Python3 is already installed"
-    //                 fi
-                    
-    //                 # Install pip manually if not available
-    //                 if ! python3 -m pip --version &> /dev/null
-    //                 then
-    //                     echo "pip could not be found. Installing..."
-    //                     python3 -m ensurepip --upgrade
-    //                 else
-    //                     echo "pip is already installed"
-    //                 fi
-                    
-    //                 # Upgrade pip, setuptools, and wheel
-    //                 python3 -m pip install --upgrade pip setuptools wheel
-    //                 '''
-    //                 sh '''
-    //                 az --version
-    //                 '''
-    //                 script {
-    //                     withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-    //                         sh '''
-    //                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-    //                         az account set --subscription $ARM_SUBSCRIPTION_ID
-    //                         '''
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     stage('Terraform Init') {
-    //         steps {
-    //             container('terraform') {
-    //                 sh '''
-    //                 cd ./05-learning
-    //                 terraform init
-    //                 '''
-    //             }
-    //         }
-    //     }
-
-    //     stage('Terraform Plan') {
-    //         steps {
-    //             container('azure-cli') {
-    //                 sh '''
-    //                 if ! command -v az &> /dev/null; then
-    //                     echo "Azure CLI not found. Installing..."
-    //                     apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-    //                     python3 -m pip install --upgrade pip setuptools wheel
-    //                     pip install azure-cli
-    //                 else
-    //                     echo "Azure CLI is already installed."
-    //                 fi
-    //                 '''
-    //                 script {
-    //                     withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-    //                         sh '''
-    //                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-    //                         az account show
-    //                         az group list --query "[?location=='eastus']"
-    //                         '''
-    //                     }
-    //                 }
-    //             }
-
-    //             container('terraform') {
-    //                 //   apk add --no-cache curl bash jq unzip python3 py3-pip
-    //                 // apk add --no-cache gcc python3-dev musl-dev linux-headers
-    //                 // pip install --break-system-packages psutil
-    //                 // pip install --break-system-packages azure-cli
-    //                 // az version  # Verify installation
-    //                 sh '''
-                  
-
-    //                 # Install only if not already installed
-    //                 if ! command -v curl >/dev/null 2>&1; then apk add --no-cache curl; fi
-    //                 if ! command -v bash >/dev/null 2>&1; then apk add --no-cache bash; fi
-    //                 if ! command -v jq >/dev/null 2>&1; then apk add --no-cache jq; fi
-    //                 if ! command -v unzip >/dev/null 2>&1; then apk add --no-cache unzip; fi
-    //                 if ! command -v python3 >/dev/null 2>&1; then apk add --no-cache python3 py3-pip; fi
-
-    //                 # Check if GCC and other dependencies are installed before installing
-    //                 if ! command -v gcc >/dev/null 2>&1; then apk add --no-cache gcc python3-dev musl-dev linux-headers; fi
-
-    //                 # Install pip packages only if not installed
-    //                 if ! python3 -c "import psutil" >/dev/null 2>&1; then pip install --break-system-packages psutil; fi
-    //                 if ! command -v az >/dev/null 2>&1; then pip install --break-system-packages azure-cli; fi
-
-    //                 # Verify Azure CLI installation updated
-    //                 az version
-    //                 '''
-    //                 script {
-    //                     withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-    //                         sh '''
-    //                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-    //                         '''
-    //                     }
-    //                 }
-    //                 sh '''
-    //                 cd ./05-learning
-    //                 terraform plan
-    //                 '''
-    //             }
-    //         }
-    //     }
-
-    //     stage('Terraform Apply') {
-    //         steps {
-    //             container('terraform') {
-    //                 sh '''
-    //                 cd ./05-learning
-    //                 terraform apply -auto-approve
-    //                 '''
-    //             }
-    //         }
-    //     }
-    // }
-
-    // post {
-    //     always {
-    //         container('azure-cli') {
-    //             sh 'az logout'
-    //         }
-    //     }
-    //     success {
-    //         echo 'Terraform deployment completed successfully!'
-    //     }
-    //     failure {
-    //         echo 'Terraform deployment failed!'
-    //     }
+    post {
+        always {
+            container('azure-cli') {
+                sh 'az logout'
+            }
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
 }
