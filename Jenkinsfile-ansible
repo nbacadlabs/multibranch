@@ -88,7 +88,13 @@ pipeline {
 
                     echo "Installing Ansible and Azure Ansible Collection..."
                     pip install azure-cli
-                    pip install ansible azure >= 2.0.0
+                    pip install --no-cache-dir ansible[azure] \
+                                              azure-mgmt-compute \
+                                              azure-mgmt-resource \
+                                              azure-mgmt-network \
+                                              azure-mgmt-storage \
+                                              azure-storage-blob \
+                                              azure-keyvault-secrets
                     pip install azure.mgmt.network
                     pip install azure.storage.blob
                     ansible-galaxy collection install azure.azcollection
