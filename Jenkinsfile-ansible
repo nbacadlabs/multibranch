@@ -69,7 +69,7 @@ pipeline {
                     pip install azure.mgmt.network
                     pip install ansible[azure]
                     pip install azure-storage-blob
-                    pip install azure.mgmt.automatio
+                    pip install azure.mgmt.automation
                     # Verify installations
                     ansible --version
                     ansible-galaxy collection install azure.azcollection
