@@ -89,37 +89,56 @@ pipeline {
                     echo "Installing Ansible and Azure Ansible Collection..."
                     pip install azure-cli
                     pip install --no-cache-dir ansible[azure] \
-                                              azure-mgmt-compute \
-                                              azure-mgmt-resource \
-                                              azure-mgmt-network \
-                                              azure-mgmt-storage \
-                                              azure-mgmt-keyvault \
-                                              azure-mgmt-subscription \
-                                              azure-mgmt-security \
-                                              azure-mgmt-authorization \
-                                              azure-mgmt-containerinstance \
-                                              azure-mgmt-containerservice \
-                                              azure-mgmt-databricks \
-                                              azure-mgmt-datafactory \
-                                              azure-mgmt-monitor \
-                                              azure-mgmt-sql \
-                                              azure-mgmt-web \
-                                              azure-keyvault-secrets \
-                                              azure-identity \
-                                              azure-core \
-                                              azure-storage-blob \
-                                              azure-cli-core \
-                                              azure-servicebus \
-                                              azure-eventhub \
-                                              azure-iot-device \
-                                              azure-ai-textanalytics \
-                                              azure-cosmos \
-                                              azure-mgmt-iothub \
-                                              azure-mgmt-eventhub \
-                                              azure.mgmt.automation \
-                                              azure.mgmt.notificationhubs
-                    pip install azure.mgmt.network
-                    pip install azure.storage.blob
+                            azure-mgmt-compute \
+                            azure-mgmt-resource \
+                            azure-mgmt-network \
+                            azure-mgmt-storage \
+                            azure-mgmt-keyvault \
+                            azure-mgmt-subscription \
+                            azure-mgmt-security \
+                            azure-mgmt-authorization \
+                            azure-mgmt-containerinstance \
+                            azure-mgmt-containerservice \
+                            azure-mgmt-databricks \
+                            azure-mgmt-datafactory \
+                            azure-mgmt-monitor \
+                            azure-mgmt-sql \
+                            azure-mgmt-web \
+                            azure-keyvault-secrets \
+                            azure-identity \
+                            azure-core \
+                            azure-storage-blob \
+                            azure-cli-core \
+                            azure-servicebus \
+                            azure-eventhub \
+                            azure-iot-device \
+                            azure-ai-textanalytics \
+                            azure-cosmos \
+                            azure-mgmt-iothub \
+                            azure-mgmt-eventhub \
+                            azure.mgmt.automation \
+                            azure.mgmt.notificationhubs \
+                            msgraph \
+                            azure.azcollection \
+                            azure_rm_compute \
+                            azure_rm_network \
+                            azure_rm_storage \
+                            azure_rm_keyvault \
+                            azure_rm_subscription \
+                            azure_rm_security \
+                            azure_rm_authorization \
+                            azure_rm_containerinstance \
+                            azure_rm_containerservice \
+                            azure_rm_databricks \
+                            azure_rm_datafactory \
+                            azure_rm_monitor \
+                            azure_rm_sql \
+                            azure_rm_web \
+                            azure_rm_servicebus \
+                            azure_rm_eventhub \
+                            azure_rm_iothub \
+                            azure_rm_notificationhubs \
+                            azure_rm_automation
                     ansible-galaxy collection install azure.azcollection
 
                     echo "Verifying installations..."
