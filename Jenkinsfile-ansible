@@ -53,7 +53,7 @@ pipeline {
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
                 pip install ansible
-                pip install --no-cache-dir uamqp
+                pip install uamqp==1.6.9
                 git clone https://github.com/ansible-collections/azure.git
                 ansible-galaxy collection install azure.azcollection
                 cd ./azure
