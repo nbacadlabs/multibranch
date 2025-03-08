@@ -55,7 +55,6 @@ pipeline {
                
 
                 echo "Installing required Python packages..."
-                pip install --no-cache-dir ansible uamqp msgraph2 azure-cli || { echo "Failed to install core packages"; exit 1; }
 
                 echo "Installing Ansible Azure dependencies..."
                 pip install --no-cache-dir ansible[azure] || { echo "Failed to install Ansible Azure dependencies"; exit 1; }
