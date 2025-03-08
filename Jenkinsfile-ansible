@@ -68,6 +68,7 @@ pipeline {
                     pip install azure-cli || { echo "Failed to install azure-cli"; exit 1; }
                     pip install azure.mgmt.network
                     pip install ansible[azure]
+                    pip install azure-storage-blob
                     # Verify installations
                     ansible --version
                     az version
