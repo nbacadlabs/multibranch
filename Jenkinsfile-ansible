@@ -27,6 +27,12 @@ pipeline {
         RESOURCE_GROUP = "nbaksclust-rg"
         AKS_CLUSTER = "prod-aks"
         BRANCH_NAME = "main"
+        VIRTUAL_NETWORK_NAME: "nb-ansible-netw" 
+        ROUTE_TABLE_NAME: "nb-ansible-rt"
+        ANSIBLE_RESOURCE_GROUP: "nb-ansible-rg"
+        SUBNET_NAME: "nb-ansible-subnet"
+        LOCATION: "eastus"
+
     }
 
     stages {
@@ -159,9 +165,16 @@ pipeline {
                         }
                     }
                     sh '''
-                    source ansible-venv/bin/activate
-                    which ansible-playbook
-                    ansible-playbook $WORKSPACE/06-ansiblefiles/01-create-rg.yml
+                        source ansible-venv/bin/activate
+                        which ansible-playbook
+                        ansible-playbook $WORKSPACE/06-ansiblefiles/01-create-rg.yml -e \
+                        '{
+                            "resource_group": "${RESOURCE_GROUP}",
+                            "location": "${LOCATION}",
+                            "virtual_network_name": "${VIRTUAL_NETWORK_NAME}", 
+                            "subnet_name": "${SUBNET_NAME}", 
+                            "route_table_name": "${ROUTE_TABLE_NAME}"
+                        }'
                     '''
                 }
             }
