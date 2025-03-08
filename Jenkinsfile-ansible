@@ -55,14 +55,18 @@ pipeline {
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
 
                 git clone https://github.com/ansible-collections/azure.git
+                ansible-galaxy collection install azure.azcollection
+                cd ./azure
+                pip3 install -r requirements.txt
 
                 echo "Installing required Python packages..."
 
                 echo "Installing Ansible Azure dependencies..."
+                git clone https://github.com/ansible-collections/azure.git
                 pip install --no-cache-dir ansible[azure] || { echo "Failed to install Ansible Azure dependencies"; exit 1; }
 
                 echo "Installing additional requirements from file..."
-                pip install -r ./07-ansiblerequirements/requirements.txt || { echo "Failed to install requirements from file"; exit 1; }
+                
 
                 echo "Verifying installations..."
                 ansible --version || { echo "Ansible installation verification failed"; exit 1; }
