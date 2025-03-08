@@ -48,6 +48,7 @@ pipeline {
                 python3 -m ensurepip
                 python3 -m pip install --upgrade pip setuptools wheel
                 python3 -m venv ansible-venv
+                pip install "uamqp<1.6.0"
 
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
