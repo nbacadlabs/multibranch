@@ -15,7 +15,7 @@ pipeline {
                 command: [ "sleep" ]
                 args: [ "infinity" ]
               - name: ansible
-                image: ansible/ansible:latest
+                image: python:3.12-alpine  # Add Ansible container
                 command: [ "sleep" ]
                 args: [ "infinity" ]
             '''
