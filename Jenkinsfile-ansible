@@ -118,7 +118,6 @@ pipeline {
                             azure-mgmt-eventhub \
                             azure.mgmt.automation \
                             azure.mgmt.notificationhubs \
-                            community.general.graph \
                             azure.azcollection \
                             azure_rm_compute \
                             azure_rm_network \
