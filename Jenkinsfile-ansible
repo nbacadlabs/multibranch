@@ -87,6 +87,7 @@ pipeline {
                     pip uninstall -y azure-cli azure-cli-core azure-mgmt-compute azure-mgmt-resource azure-mgmt-storage || { echo "Failed to uninstall Azure CLI"; exit 1; }
 
                     echo "Installing Ansible and Azure Ansible Collection..."
+                    pip install azure-cli
                     pip install ansible[azure]
                     ansible-galaxy collection install azure.azcollection
 
