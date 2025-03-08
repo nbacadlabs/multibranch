@@ -54,6 +54,7 @@ pipeline {
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
                 pip install ansible
                 pip install azure-cli
+                export PATH="$PATH:/home/jenkins/agent/workspace/ansible-multibranch_main/ansible-venv/bin"
                 ansible-galaxy collection install azure.azcollection
           
                 pip3 install -r ./07-ansiblerequirements/requirements.txt
