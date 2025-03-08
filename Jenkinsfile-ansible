@@ -55,6 +55,8 @@ pipeline {
                     fi
 
                     # Install ansible and other dependencies if not installed
+                    sudo apt-get install gcc python3-dev build-essential
+                    pip install psutil
                     pip install --no-cache-dir ansible
                     pip install azure-cli
 
