@@ -66,7 +66,7 @@ pipeline {
                     # Install Ansible and Azure CLI
                     pip install --no-cache-dir ansible || { echo "Failed to install Ansible"; exit 1; }
                     pip install azure-cli || { echo "Failed to install azure-cli"; exit 1; }
-
+                    pip install azure-mgmt-network
                     # Verify installations
                     ansible --version
                     az version
