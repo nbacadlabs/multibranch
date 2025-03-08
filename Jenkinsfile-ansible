@@ -69,6 +69,7 @@ pipeline {
 
                 echo "Verifying installations..."
                 ansible --version || { echo "Ansible installation verification failed"; exit 1; }
+                ansible-playbook --version
                 az version || { echo "Azure CLI installation verification failed"; exit 1; }
 
                 echo "Virtual environment setup complete!"
