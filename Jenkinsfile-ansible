@@ -118,26 +118,7 @@ pipeline {
                             azure-mgmt-eventhub \
                             azure.mgmt.automation \
                             azure.mgmt.notificationhubs \
-                            azure_rm_compute \
-                            azure_rm_network \
-                            azure_rm_storage \
-                            azure_rm_keyvault \
-                            azure_rm_subscription \
-                            azure_rm_security \
-                            azure_rm_authorization \
-                            azure_rm_containerinstance \
-                            azure_rm_containerservice \
-                            azure_rm_databricks \
-                            azure_rm_datafactory \
-                            azure_rm_monitor \
-                            azure_rm_sql \
-                            azure_rm_web \
-                            azure_rm_servicebus \
-                            azure_rm_eventhub \
-                            azure_rm_iothub \
-                            azure_rm_notificationhubs \
-                            azure_rm_automation
-                    ansible-galaxy collection install azure.azcollection
+                           
 
                     echo "Verifying installations..."
                     ansible --version
