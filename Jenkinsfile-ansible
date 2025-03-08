@@ -86,16 +86,9 @@ pipeline {
                     echo "Uninstalling any existing Azure CLI versions..."
                     pip uninstall -y azure-cli azure-cli-core azure-mgmt-compute azure-mgmt-resource azure-mgmt-storage || { echo "Failed to uninstall Azure CLI"; exit 1; }
 
-                    echo "Installing Azure CLI with correct dependencies..."
-                    pip install --no-cache-dir azure-cli==2.70.0 \
-                                              azure-cli-core==2.70.0 \
-                                              azure-mgmt-compute~=33.0.0 \
-                                              azure-mgmt-resource==23.1.1 \
-                                              azure-mgmt-storage==22.1.0 || { echo "Failed to install Azure CLI"; exit 1; }
-
                     echo "Installing Ansible and Azure Ansible Collection..."
-                    pip install ansible[azure] || { echo "Failed to install ansible[azure]"; exit 1; }
-                    ansible-galaxy collection install azure.azcollection || { echo "Failed to install Ansible Azure Collection"; exit 1; }
+                    pip install ansible[azure]
+                    ansible-galaxy collection install azure.azcollection
 
                     echo "Verifying installations..."
                     ansible --version
