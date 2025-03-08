@@ -116,7 +116,8 @@ pipeline {
                                               azure-cosmos \
                                               azure-mgmt-iothub \
                                               azure-mgmt-eventhub \
-                                              azure.mgmt.automation
+                                              azure.mgmt.automation \
+                                              azure.mgmt.notificationhubs
                     pip install azure.mgmt.network
                     pip install azure.storage.blob
                     ansible-galaxy collection install azure.azcollection
