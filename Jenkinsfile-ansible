@@ -39,41 +39,66 @@ pipeline {
         stage('Install Ansible') {
             steps {
                 container('ansible') {
-                    sh '''
-                    # Ensure system dependencies are installed first
-                    echo "Installing build tools..."
+                //     sh '''
+                //     # Ensure system dependencies are installed first
+                //     echo "Installing build tools..."
+                //     apk add --no-cache gcc python3-dev build-base musl-dev linux-headers || { echo "Failed to install system dependencies"; exit 1; }
+
+                //     # Check if the Azure SDK libraries are installed
+                //     if ! python3 -c "import azure.mgmt.resource" >/dev/null 2>&1; then
+                //         echo "azure-mgmt-resource not found. Installing..."
+                //         pip install azure-mgmt-resource || { echo "Failed to install azure-mgmt-resource"; exit 1; }
+                //     else
+                //         echo "azure-mgmt-resource is already installed."
+                //     fi
+
+                //     if ! python3 -c "import azure.mgmt.compute" >/dev/null 2>&1; then
+                //         echo "azure-mgmt-compute not found. Installing..."
+                //         pip install azure-mgmt-compute || { echo "Failed to install azure-mgmt-compute"; exit 1; }
+                //     else
+                //         echo "azure-mgmt-compute is already installed."
+                //     fi
+
+                //     # Install psutil and other dependencies
+                //     echo "Installing psutil..."
+                //     pip install psutil || { echo "Failed to install psutil"; exit 1; }
+
+                //     # Install Ansible and Azure CLI
+                //     pip install --no-cache-dir ansible || { echo "Failed to install Ansible"; exit 1; }
+                //     pip install azure-cli || { echo "Failed to install azure-cli"; exit 1; }
+                //     pip install azure.mgmt.network
+                //     pip install ansible[azure]
+                //     pip install azure-storage-blob
+                //     pip install azure.mgmt.automation
+                //     pip install azure.mgmt.notificationhubs
+                //     # Verify installations
+                //     ansible --version
+                //     pip install azure-ansible-base
+                //     az version
+                // '''
+                sh '''
+                    echo "Installing system dependencies..."
                     apk add --no-cache gcc python3-dev build-base musl-dev linux-headers || { echo "Failed to install system dependencies"; exit 1; }
 
-                    # Check if the Azure SDK libraries are installed
-                    if ! python3 -c "import azure.mgmt.resource" >/dev/null 2>&1; then
-                        echo "azure-mgmt-resource not found. Installing..."
-                        pip install azure-mgmt-resource || { echo "Failed to install azure-mgmt-resource"; exit 1; }
-                    else
-                        echo "azure-mgmt-resource is already installed."
-                    fi
+                    echo "Upgrading pip..."
+                    pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
 
-                    if ! python3 -c "import azure.mgmt.compute" >/dev/null 2>&1; then
-                        echo "azure-mgmt-compute not found. Installing..."
-                        pip install azure-mgmt-compute || { echo "Failed to install azure-mgmt-compute"; exit 1; }
-                    else
-                        echo "azure-mgmt-compute is already installed."
-                    fi
+                    echo "Uninstalling any existing Azure CLI versions..."
+                    pip uninstall -y azure-cli azure-cli-core azure-mgmt-compute azure-mgmt-resource azure-mgmt-storage || { echo "Failed to uninstall Azure CLI"; exit 1; }
 
-                    # Install psutil and other dependencies
-                    echo "Installing psutil..."
-                    pip install psutil || { echo "Failed to install psutil"; exit 1; }
+                    echo "Installing Azure CLI with correct dependencies..."
+                    pip install --no-cache-dir azure-cli==2.70.0 \
+                                              azure-cli-core==2.70.0 \
+                                              azure-mgmt-compute~=33.0.0 \
+                                              azure-mgmt-resource==23.1.1 \
+                                              azure-mgmt-storage==22.1.0 || { echo "Failed to install Azure CLI"; exit 1; }
 
-                    # Install Ansible and Azure CLI
-                    pip install --no-cache-dir ansible || { echo "Failed to install Ansible"; exit 1; }
-                    pip install azure-cli || { echo "Failed to install azure-cli"; exit 1; }
-                    pip install azure.mgmt.network
-                    pip install ansible[azure]
-                    pip install azure-storage-blob
-                    pip install azure.mgmt.automation
-                    pip install azure.mgmt.notificationhubs
-                    # Verify installations
+                    echo "Installing Ansible and Azure Ansible Collection..."
+                    pip install ansible[azure] || { echo "Failed to install ansible[azure]"; exit 1; }
+                    ansible-galaxy collection install azure.azcollection || { echo "Failed to install Ansible Azure Collection"; exit 1; }
+
+                    echo "Verifying installations..."
                     ansible --version
-                    pip install azure-ansible-base
                     az version
                 '''
 
