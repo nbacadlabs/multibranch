@@ -98,7 +98,7 @@ pipeline {
             steps {
                 container('ansible') {
                     sh '''
-                    ansible-playbook ./06-ansiblefiles/01-create-rg.yml
+                    ansible-playbook 06-ansiblefiles/01-create-rg.yml
                     '''
                 }
             }
