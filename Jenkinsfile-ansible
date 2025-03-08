@@ -63,39 +63,11 @@ pipeline {
                 pip install ansible || { echo "Failed to install Ansible"; exit 1; }
 
                 echo "Installing Ansible collections..."
-                ansible-galaxy collection install community.general || { echo "Failed to install Ansible collections"; exit 1; }
 
                 echo "Installing Azure-related Python modules..."
-                pip install --no-cache-dir ansible[azure] \
-                    azure-mgmt-compute \
-                    azure-mgmt-resource \
-                    azure-mgmt-network \
-                    azure-mgmt-storage \
-                    azure-mgmt-keyvault \
-                    azure-mgmt-subscription \
-                    azure-mgmt-security \
-                    azure-mgmt-authorization \
-                    azure-mgmt-containerinstance \
-                    azure-mgmt-containerservice \
-                    azure-mgmt-databricks \
-                    azure-mgmt-datafactory \
-                    azure-mgmt-monitor \
-                    azure-mgmt-sql \
-                    azure-mgmt-web \
-                    azure-keyvault-secrets \
-                    azure-identity \
-                    azure-core \
-                    azure-storage-blob \
-                    azure-cli-core \
-                    azure-servicebus \
-                    azure-eventhub \
-                    azure-iot-device \
-                    azure-ai-textanalytics \
-                    azure-cosmos \
-                    azure-mgmt-iothub \
-                    azure-mgmt-eventhub \
-                    azure.mgmt.automation \
-                    azure.mgmt.notificationhubs || { echo "Failed to install Azure modules"; exit 1; }
+                pip install --no-cache-dir ansible[azure]
+                pip install ./07-ansiblerequirements/requirements.txt
+                pip
 
                 echo "Verifying installations..."
                 ansible --version
