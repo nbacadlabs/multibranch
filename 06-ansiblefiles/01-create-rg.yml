@@ -6,6 +6,6 @@
   tasks:
     - name: Creating resource group
       azure_rm_resourcegroup:
-        name: "create-rg"
+        name: "nbtest-rg"
         state: absent
         location: "eastus"
