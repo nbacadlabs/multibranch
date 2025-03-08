@@ -48,7 +48,6 @@ pipeline {
                 python3 -m venv ansible-venv
                 source ansible-venv/bin/activate
                 pip install cython
-                pip install uamqp
                 pip install "uamqp<1.6.0"
 
                 echo "Upgrading pip and essential Python tools..."
@@ -62,7 +61,7 @@ pipeline {
                 echo "Installing required Python packages..."
 
                 echo "Installing Ansible Azure dependencies..."
-                git clone https://github.com/ansible-collections/azure.git
+                
                 pip install --no-cache-dir ansible[azure] || { echo "Failed to install Ansible Azure dependencies"; exit 1; }
 
                 echo "Installing additional requirements from file..."
