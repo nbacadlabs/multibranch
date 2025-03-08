@@ -99,7 +99,10 @@ pipeline {
             steps {
                 container('ansible') {
                     sh '''
-                    /usr/local/bin/ansible-playbook 06-ansiblefiles/01-create-rg.yml
+                    echo $PATH
+                    pwd
+                    which ansible-playbook
+                    ansible-playbook pwd/06-ansiblefiles/01-create-rg.yml
                     '''
                 }
             }
