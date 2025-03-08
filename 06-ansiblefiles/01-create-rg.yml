@@ -7,4 +7,5 @@
     - name: Creating resource group
       azure_rm_resourcegroup:
         name: "create-rg"
+        state: absent
         location: "eastus"
