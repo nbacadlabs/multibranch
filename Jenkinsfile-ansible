@@ -53,8 +53,7 @@ pipeline {
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
                 pip install ansible
-           
-
+                pip install azure-cli
                 ansible-galaxy collection install azure.azcollection
           
                 pip3 install -r ./07-ansiblerequirements/requirements.txt
