@@ -41,39 +41,30 @@ pipeline {
                 container('ansible') {
                 sh '''
                 echo "Installing system dependencies..."
-                apk add --no-cache gcc python3.10 python3.10-venv python3-dev build-base musl-dev openssl-dev cmake make gcc g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
-                
-                echo "Upgrading pip..."
-                pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
-                echo "Uninstalling any existing Azure CLI versions..."
+                apk add --no-cache gcc python3.10 python3.10-venv python3-dev build-base musl-dev openssl-dev cmake make g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
+
+                echo "Upgrading pip and essential Python tools..."
+                pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
+
                 echo "Creating and activating a virtual environment..."
-                python3.10 -m venv ansible-venv
-                source ansible-venv/bin/activate
-                pip install ansible uamqp
-                pip install --no-cache-dir uamqp
-                pip install --upgrade pip setuptools wheel
-                echo "Installing msgraph2..."
-                pip install msgraph2 || { echo "Failed to install msgraph2"; exit 1; }
+                python3.10 -m venv ansible-venv || { echo "Failed to create virtual environment"; exit 1; }
+                . ansible-venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
 
-                echo "Installing Azure CLI..."
-                pip install azure-cli || { echo "Failed to install Azure CLI"; exit 1; }
+                echo "Installing required Python packages..."
+                pip install --no-cache-dir ansible uamqp msgraph2 azure-cli || { echo "Failed to install core packages"; exit 1; }
 
-                echo "Installing Ansible..."
-                pip install ansible || { echo "Failed to install Ansible"; exit 1; }
+                echo "Installing Ansible Azure dependencies..."
+                pip install --no-cache-dir ansible[azure] || { echo "Failed to install Ansible Azure dependencies"; exit 1; }
 
-                echo "Installing Ansible collections..."
-
-                echo "Installing Azure-related Python modules..."
-                pip install --no-cache-dir ansible[azure]
-                pip install -r ./07-ansiblerequirements/requirements.txt
-                pip
+                echo "Installing additional requirements from file..."
+                pip install -r ./07-ansiblerequirements/requirements.txt || { echo "Failed to install requirements from file"; exit 1; }
 
                 echo "Verifying installations..."
-                ansible --version
-                az version
+                ansible --version || { echo "Ansible installation verification failed"; exit 1; }
+                az version || { echo "Azure CLI installation verification failed"; exit 1; }
 
                 echo "Virtual environment setup complete!"
-            '''
+                '''
 
                 }
             }
