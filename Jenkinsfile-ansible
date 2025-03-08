@@ -84,7 +84,7 @@ pipeline {
                     pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
 
                     echo "Uninstalling any existing Azure CLI versions..."
-                    pip uninstall -y azure-cli azure-cli-core azure-mgmt-compute azure-mgmt-resource azure-mgmt-storage || { echo "Failed to uninstall Azure CLI"; exit 1; }
+                    pip uninstall -y azure-cli azure-cli-core azure-mgmt-compute msgraph azure-mgmt-resource azure-mgmt-storage || { echo "Failed to uninstall Azure CLI"; exit 1; }
 
                     echo "Installing Ansible and Azure Ansible Collection..."
                     pip install azure-cli
