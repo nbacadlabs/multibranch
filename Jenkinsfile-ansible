@@ -70,9 +70,10 @@ pipeline {
                     pip install ansible[azure]
                     pip install azure-storage-blob
                     pip install azure.mgmt.automation
+                    pip install azure.mgmt.notificationhubs
                     # Verify installations
                     ansible --version
-                    ansible-galaxy collection install azure.azcollection
+                    pip install azure-ansible-base
                     az version
                 '''
 
