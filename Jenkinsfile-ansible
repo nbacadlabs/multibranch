@@ -40,6 +40,10 @@ pipeline {
             steps {
                 container('ansible') {
                     sh '''
+                    # Ensure system dependencies are installed first
+                    echo "Installing build tools..."
+                    apk add --no-cache gcc python3-dev build-base musl-dev linux-headers || { echo "Failed to install system dependencies"; exit 1; }
+
                     # Check if the Azure SDK libraries are installed
                     if ! python3 -c "import azure.mgmt.resource" >/dev/null 2>&1; then
                         echo "azure-mgmt-resource not found. Installing..."
@@ -55,18 +59,19 @@ pipeline {
                         echo "azure-mgmt-compute is already installed."
                     fi
 
-                    # Install system dependencies (gcc, python3-dev, build-base)
-                    apk add --no-cache gcc python3-dev build-base || { echo "Failed to install system dependencies"; exit 1; }
-
-                    # Install psutil and Ansible
+                    # Install psutil and other dependencies
+                    echo "Installing psutil..."
                     pip install psutil || { echo "Failed to install psutil"; exit 1; }
+
+                    # Install Ansible and Azure CLI
                     pip install --no-cache-dir ansible || { echo "Failed to install Ansible"; exit 1; }
                     pip install azure-cli || { echo "Failed to install azure-cli"; exit 1; }
 
                     # Verify installations
                     ansible --version
                     az version
-                    '''
+                '''
+
                 }
             }
         }
