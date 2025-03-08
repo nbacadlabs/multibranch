@@ -96,7 +96,8 @@ pipeline {
                                               azure-storage-blob \
                                               azure-keyvault-secrets \
                                               azure.mgmt.automation \
-                                              azure.mgmt.notificationhubs
+                                              azure.mgmt.notificationhubs \
+                                              azure.mgmt.datafactory
                     pip install azure.mgmt.network
                     pip install azure.storage.blob
                     ansible-galaxy collection install azure.azcollection
