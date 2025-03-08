@@ -42,15 +42,17 @@ pipeline {
                 sh '''
                 echo "Installing system dependencies..."
                 echo "Installing system dependencies..."
-                apk add --no-cache gcc python3 py3-venv python3-dev build-base musl-dev openssl-dev cmake make g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
-
+                apk add --no-cache gcc musl-dev openssl-dev cmake make g++ linux-headers
+                apk update
+                apk add --no-cache python3 py3-pip
+                python3 -m ensurepip
+                python3 -m pip install --upgrade pip setuptools wheel
+                python3 -m venv ansible-venv
 
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
 
-                echo "Creating and activating a virtual environment..."
-                python3.10 -m venv ansible-venv || { echo "Failed to create virtual environment"; exit 1; }
-                . ansible-venv/bin/activate || { echo "Failed to activate virtual environment"; exit 1; }
+               
 
                 echo "Installing required Python packages..."
                 pip install --no-cache-dir ansible uamqp msgraph2 azure-cli || { echo "Failed to install core packages"; exit 1; }
