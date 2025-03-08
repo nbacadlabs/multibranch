@@ -24,7 +24,7 @@
         - 127.0.0.3
     - name: Create route
       azure_rm_route:
-        name: "{{ route_name }}"
+        name: "{{ route_table_name }}"
         state: absent
         resource_group: "{{ resource_group }}"
         next_hop_type: virtual_network_gateway
