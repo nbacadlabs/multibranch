@@ -29,7 +29,7 @@ pipeline {
         BRANCH_NAME = "main"
         VIRTUAL_NETWORK_NAME = "nbansiblenetw" 
         ROUTE_TABLE_NAME = "nbansible-rt"
-        ANSIBLE_RESOURCE_GROU P= "nb-ansible-rg"
+        ANSIBLE_RESOURCE_GROUP = "nb-ansible-rg"
         SUBNET_NAME = "nb-ansible-subnet"
         LOCATION = "eastus"
 
