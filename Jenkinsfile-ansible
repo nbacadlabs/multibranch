@@ -55,10 +55,11 @@ pipeline {
                 pip install ansible
                 CFLAGS="-Wno-error=incompatible-function-pointer-types" pip3 install uamqp==1.6.9
 
-                git clone https://github.com/ansible-collections/azure.git
+                #git clone https://github.com/ansible-collections/azure.git
+
                 ansible-galaxy collection install azure.azcollection
                 cd ./azure
-                pip3 install -r requirements.txt
+                pip3 install -r ./07-ansiblerequirements/requirements.txt
 
                 echo "Installing required Python packages..."
 
