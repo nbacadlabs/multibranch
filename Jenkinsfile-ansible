@@ -169,7 +169,7 @@ pipeline {
                         which ansible-playbook
                         ansible-playbook $WORKSPACE/06-ansiblefiles/01-create-rg.yml -e \
                          "{
-                            \"resource_group\": \"${RESOURCE_GROUP}\",
+                            \"resource_group\": \"${ANSIBLE_RESOURCE_GROUP}\",
                             \"location\": \"${LOCATION}\",
                             \"virtual_network_name\": \"${VIRTUAL_NETWORK_NAME}\", 
                             \"subnet_name\": \"${SUBNET_NAME}\", 
