@@ -41,7 +41,9 @@ pipeline {
                 container('ansible') {
                 sh '''
                 echo "Installing system dependencies..."
-                apk add --no-cache gcc python3.10 python3.10-venv python3-dev build-base musl-dev openssl-dev cmake make g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
+                echo "Installing system dependencies..."
+                apk add --no-cache gcc python3 py3-venv python3-dev build-base musl-dev openssl-dev cmake make g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
+
 
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
