@@ -42,18 +42,18 @@ pipeline {
                 sh '''
                 echo "Installing system dependencies..."
                 echo "Installing system dependencies..."
-                apk add --no-cache gcc musl-dev openssl-dev cmake make g++ linux-headers
+                apk add --no-cache git gcc musl-dev openssl-dev cmake make g++ linux-headers
                 apk update
-                apk add --no-cache python3 py3-pip
-                python3 -m ensurepip
-                python3 -m pip install --upgrade pip setuptools wheel
-                python3 -m venv ansible-venv
+                apk add python3.10 python3.10-dev
+                python3.10 -m venv ansible-venv
+                source ansible-venv/bin/activate
+                pip install uamqp
                 pip install "uamqp<1.6.0"
 
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
 
-               
+                git clone https://github.com/ansible-collections/azure.git
 
                 echo "Installing required Python packages..."
 
