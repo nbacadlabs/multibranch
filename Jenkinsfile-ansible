@@ -52,7 +52,7 @@ pipeline {
 
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
-
+                pip install ansible
                 git clone https://github.com/ansible-collections/azure.git
                 ansible-galaxy collection install azure.azcollection
                 cd ./azure
