@@ -40,27 +40,30 @@ pipeline {
             steps {
                 container('ansible') {
                     sh '''
-                    # Check if the azure SDK libraries are installed
+                    # Check if the Azure SDK libraries are installed
                     if ! python3 -c "import azure.mgmt.resource" >/dev/null 2>&1; then
                         echo "azure-mgmt-resource not found. Installing..."
-                        pip install azure-mgmt-resource
+                        pip install azure-mgmt-resource || { echo "Failed to install azure-mgmt-resource"; exit 1; }
                     else
                         echo "azure-mgmt-resource is already installed."
                     fi
 
-                    # You can add other azure SDK packages here as needed
                     if ! python3 -c "import azure.mgmt.compute" >/dev/null 2>&1; then
                         echo "azure-mgmt-compute not found. Installing..."
-                        pip install azure-mgmt-compute
+                        pip install azure-mgmt-compute || { echo "Failed to install azure-mgmt-compute"; exit 1; }
+                    else
+                        echo "azure-mgmt-compute is already installed."
                     fi
 
-                    # Install ansible and other dependencies if not installed
-                    apk add --no-cache gcc python3-dev build-base
-                    pip install psutil
-                    pip install --no-cache-dir ansible
-                    pip install azure-cli
+                    # Install system dependencies (gcc, python3-dev, build-base)
+                    apk add --no-cache gcc python3-dev build-base || { echo "Failed to install system dependencies"; exit 1; }
 
-                    # Verify installation
+                    # Install psutil and Ansible
+                    pip install psutil || { echo "Failed to install psutil"; exit 1; }
+                    pip install --no-cache-dir ansible || { echo "Failed to install Ansible"; exit 1; }
+                    pip install azure-cli || { echo "Failed to install azure-cli"; exit 1; }
+
+                    # Verify installations
                     ansible --version
                     az version
                     '''
