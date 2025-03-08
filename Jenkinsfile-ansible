@@ -77,8 +77,8 @@ pipeline {
                 container('ansible') {
                     sh '''
                     ls -lah 06-ansiblefiles
-                    cd ./06-ansiblefiles
-                    ansible-playbook 01-create_rg.yaml --extra-vars "name=$RESOURCE_GROUP location=eastus"
+                    echo "Running Ansible Playbook..."
+                    ansible-playbook ./06-ansiblefiles/01-create-rg.yaml --extra-vars "name=$RESOURCE_GROUP location=eastus"
                     '''
                 }
             }
