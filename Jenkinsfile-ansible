@@ -42,15 +42,14 @@ pipeline {
                 sh '''
                 echo "Installing system dependencies..."
                 apk add --no-cache gcc python3-dev build-base musl-dev openssl-dev cmake make gcc g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
+                
                 echo "Upgrading pip..."
                 pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
-
                 echo "Uninstalling any existing Azure CLI versions..."
-                pip uninstall -y azure-cli azure-cli-core azure-mgmt-compute azure-mgmt-resource azure-mgmt-storage || { echo "Failed to uninstall Azure CLI"; exit 1; }
-
                 echo "Creating and activating a virtual environment..."
                 python3 -m venv /opt/ansible-venv || { echo "Failed to create virtual environment"; exit 1; }
                 source /opt/ansible-venv/bin/activate
+                pip install --no-cache-dir uamqp
                 pip install --upgrade pip setuptools wheel
                 echo "Installing msgraph2..."
                 pip install msgraph2 || { echo "Failed to install msgraph2"; exit 1; }
