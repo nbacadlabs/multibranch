@@ -118,7 +118,7 @@ pipeline {
                             azure-mgmt-eventhub \
                             azure.mgmt.automation \
                             azure.mgmt.notificationhubs \
-                            msgraph \
+                            azure_rm_msgraph \
                             azure.azcollection \
                             azure_rm_compute \
                             azure_rm_network \
