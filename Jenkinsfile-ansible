@@ -88,6 +88,7 @@ pipeline {
 
                     echo "Installing Ansible and Azure Ansible Collection..."
                     pip install azure-cli
+                    ansible-galaxy collection install community.general
                     pip install --no-cache-dir ansible[azure] \
                             azure-mgmt-compute \
                             azure-mgmt-resource \
