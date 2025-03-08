@@ -102,6 +102,7 @@ pipeline {
                     echo $PATH
                     pwd
                     which ansible-playbook
+                    apk add --no-cache ansible
                     ansible-playbook pwd/06-ansiblefiles/01-create-rg.yml
                     '''
                 }
