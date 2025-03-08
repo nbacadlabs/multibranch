@@ -53,7 +53,8 @@ pipeline {
                 echo "Upgrading pip and essential Python tools..."
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
                 pip install ansible
-                pip install uamqp==1.6.8
+                CFLAGS="-Wno-error=incompatible-function-pointer-types" pip3 install uamqp
+               
                 git clone https://github.com/ansible-collections/azure.git
                 ansible-galaxy collection install azure.azcollection
                 cd ./azure
