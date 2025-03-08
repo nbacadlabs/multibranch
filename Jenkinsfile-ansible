@@ -41,8 +41,7 @@ pipeline {
                 container('ansible') {
                 sh '''
                 echo "Installing system dependencies..."
-                apk add --no-cache gcc python3-dev build-base musl-dev linux-headers || { echo "Failed to install system dependencies"; exit 1; }
-
+                apk add --no-cache gcc python3-dev build-base musl-dev openssl-dev cmake make gcc g++ linux-headers || { echo "Failed to install system dependencies"; exit 1; }
                 echo "Upgrading pip..."
                 pip install --upgrade pip || { echo "Failed to upgrade pip"; exit 1; }
 
@@ -52,7 +51,7 @@ pipeline {
                 echo "Creating and activating a virtual environment..."
                 python3 -m venv /opt/ansible-venv || { echo "Failed to create virtual environment"; exit 1; }
                 source /opt/ansible-venv/bin/activate
-
+                pip install --upgrade pip setuptools wheel
                 echo "Installing msgraph2..."
                 pip install msgraph2 || { echo "Failed to install msgraph2"; exit 1; }
 
