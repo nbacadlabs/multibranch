@@ -58,7 +58,7 @@ pipeline {
                 #git clone https://github.com/ansible-collections/azure.git
 
                 ansible-galaxy collection install azure.azcollection
-                cd ./azure
+                #cd ./azure
                 pip3 install -r ./07-ansiblerequirements/requirements.txt
 
                 echo "Installing required Python packages..."
