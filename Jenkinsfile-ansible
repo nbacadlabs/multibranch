@@ -78,7 +78,7 @@ pipeline {
                     sh '''
                     ls -lah 06-ansiblefiles
                     echo "Running Ansible Playbook..."
-                    ansible-playbook ./06-ansiblefiles/01-create-rg.yaml --extra-vars "name=$RESOURCE_GROUP location=eastus"
+                    ansible-playbook ./06-ansiblefiles/01-create-rg.yaml --extra-vars "name=ansiblerg location=eastus"
                     '''
                 }
             }
