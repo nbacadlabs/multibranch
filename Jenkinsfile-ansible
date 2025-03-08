@@ -115,7 +115,8 @@ pipeline {
                                               azure-ai-textanalytics \
                                               azure-cosmos \
                                               azure-mgmt-iothub \
-                                              azure-mgmt-eventhub
+                                              azure-mgmt-eventhub \
+                                              azure.mgmt.automation
                     pip install azure.mgmt.network
                     pip install azure.storage.blob
                     ansible-galaxy collection install azure.azcollection
