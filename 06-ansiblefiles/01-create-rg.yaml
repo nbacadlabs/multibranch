@@ -3,7 +3,6 @@
   connection: local
   tasks:
     - name: Creating resource group - "{{ name }}"
-      azure.azcollection.azure_rm_resourcegroup:
       azure_rm_resourcegroup:
         name: "{{ name }}"
 
