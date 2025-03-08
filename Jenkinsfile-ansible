@@ -95,17 +95,7 @@ pipeline {
         stage('Run Ansible Playbook') {
             steps {
                 container('ansible') {
-                    withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
-                        sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account show
-                        az group list --query "[?location=='eastus']"
-                            '''
-                        }
-                    }
                     sh '''
-                    ls -lah 06-ansiblefiles
-                    echo "Running Ansible Playbook..."
                     ansible-playbook ./06-ansiblefiles/01-create-rg.yaml --extra-vars "name=ansiblerg location=eastus"
                     '''
                 }
