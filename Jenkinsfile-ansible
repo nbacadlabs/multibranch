@@ -88,8 +88,9 @@ pipeline {
 
                     echo "Installing Ansible and Azure Ansible Collection..."
                     pip install azure-cli
-                    pip install ansible[azure]
+                    pip install ansible azure >= 2.0.0
                     pip install azure.mgmt.network
+                    pip install azure.storage.blob
                     ansible-galaxy collection install azure.azcollection
 
                     echo "Verifying installations..."
