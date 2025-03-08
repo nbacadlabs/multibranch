@@ -54,10 +54,6 @@ pipeline {
                 pip install --upgrade pip setuptools wheel || { echo "Failed to upgrade pip"; exit 1; }
                 pip install ansible
                 pip install azure-cli
-                az extension remove --name batch
-                az extension remove --name keyvault
-                az extension add --name batch
-                az extension add --name keyvault
                 export PATH="$PATH:/home/jenkins/agent/workspace/ansible-multibranch_main/ansible-venv/bin"
                 ansible-galaxy collection install azure.azcollection
           
