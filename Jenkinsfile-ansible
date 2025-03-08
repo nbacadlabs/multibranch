@@ -48,8 +48,17 @@ pipeline {
                     done
                     
                     # Install Ansible if not already installed
+
                     if ! command -v ansible >/dev/null 2>&1; then pip install --no-cache-dir ansible; fi
-                    
+
+                     if ! python3 -c "import azure" >/dev/null 2>&1; then
+                        echo "Azure library not found. Installing..."
+                        pip install azure
+                        pip install azure-cli
+                    else
+                        echo "Azure library is already installed."
+                    fi
+                    az version
                     ansible --version
                     '''
                 }
