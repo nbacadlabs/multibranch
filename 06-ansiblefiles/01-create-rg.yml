@@ -8,4 +8,5 @@
       azure_rm_resourcegroup:
         name: "nbtest-rg"
         state: absent
+        force_delete_nonempty: yes
         location: "eastus"
