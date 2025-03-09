@@ -7,7 +7,7 @@
     - name: Creating resource group
       azure_rm_resourcegroup:
         name: "{{ resource_group }}"
-        state: absent
+        state: present
         force_delete_nonempty: yes
         location: "{{ location }}"
 
