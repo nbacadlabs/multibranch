@@ -1,4 +1,4 @@
-# main_playbook.yml
+# main_playbook.yml  deploying number of playbooks
 ---
 - import_playbook: 01-create-rg.yml
 - import_playbook: 02-create-vnet.yml
