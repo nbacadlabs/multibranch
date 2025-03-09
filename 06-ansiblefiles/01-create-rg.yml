@@ -25,6 +25,7 @@
     - name: Create a route table
       azure_rm_routetable:
         name: "{{ route_table_name }}"
+        state: absent
         resource_group: "{{ resource_group }}"
     - name: Create a subnet with route table
       azure_rm_subnet:
