@@ -1,0 +1,9 @@
+# main_playbook.yml
+---
+- hosts: localhost
+  tasks:
+    - name: Create resource group
+      import_playbook: 01-create-rg.yml
+
+    - name: Create virtual network
+      import_playbook: 02-create-vnet.yml
