@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: localhost  #Testing the files once more
   connection: local
   collections:
     - azure.azcollection
@@ -7,14 +7,14 @@
     - name: Creating resource group
       azure_rm_resourcegroup:
         name: "{{ resource_group }}"
-        state: absent
+        state: present
         force_delete_nonempty: yes
         location: "{{ location }}"
 
     - name: Create virtual network
       azure_rm_virtualnetwork:
         name: "{{ virtual_network_name }}"
-        state: absent
+        state: present
         resource_group: "{{ resource_group }}"
         address_prefixes_cidr:
         - 10.1.0.0/16
@@ -25,12 +25,12 @@
     - name: Create a route table
       azure_rm_routetable:
         name: "{{ route_table_name }}"
-        state: absent
+        state: present
         resource_group: "{{ resource_group }}"
     - name: Create a subnet with route table
       azure_rm_subnet:
         name: "{{ subnet_name }}"
-        state: absent
+        state: present
         virtual_network_name: "{{ virtual_network_name }}"
         resource_group: "{{ resource_group }}"
         address_prefix_cidr: "10.1.0.0/24"
