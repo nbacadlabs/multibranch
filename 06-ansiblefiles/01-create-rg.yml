@@ -1,5 +1,5 @@
 ---
-- hosts: localhost  #Testing the files once more
+- hosts: localhost  #Testing the files once
   connection: local
   collections:
     - azure.azcollection
