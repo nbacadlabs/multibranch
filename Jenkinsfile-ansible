@@ -167,7 +167,7 @@ pipeline {
                     sh '''
                         source ansible-venv/bin/activate
                         which ansible-playbook
-                        ansible-playbook $WORKSPACE/06-ansiblefiles/01-create-rg.yml -e \
+                        ansible-playbook $WORKSPACE/06-ansiblefiles/create-resources.yml -e \
                          "{
                             \"resource_group\": \"${ANSIBLE_RESOURCE_GROUP}\",
                             \"location\": \"${LOCATION}\",
