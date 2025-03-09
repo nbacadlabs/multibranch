@@ -7,7 +7,7 @@
     - name: Create virtual network
       azure_rm_virtualnetwork:
         name: "{{ virtual_network_name }}"
-        state: present
+        state: absent
         resource_group: "{{ resource_group }}"
         address_prefixes_cidr:
         - 10.1.0.0/16
@@ -23,7 +23,7 @@
     - name: Create a subnet with route table
       azure_rm_subnet:
         name: "{{ subnet_name }}"
-        state: present
+        state: absent
         virtual_network_name: "{{ virtual_network_name }}"
         resource_group: "{{ resource_group }}"
         address_prefix_cidr: "10.1.0.0/24"

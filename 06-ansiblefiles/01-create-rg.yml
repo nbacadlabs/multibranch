@@ -10,28 +10,3 @@
         state: present
         force_delete_nonempty: yes
         location: "{{ location }}"
-
-    - name: Create virtual network
-      azure_rm_virtualnetwork:
-        name: "{{ virtual_network_name }}"
-        state: present
-        resource_group: "{{ resource_group }}"
-        address_prefixes_cidr:
-        - 10.1.0.0/16
-        - 172.100.0.0/16
-        dns_servers:
-        - 127.0.0.1
-        - 127.0.0.3
-    - name: Create a route table
-      azure_rm_routetable:
-        name: "{{ route_table_name }}"
-        state: present
-        resource_group: "{{ resource_group }}"
-    - name: Create a subnet with route table
-      azure_rm_subnet:
-        name: "{{ subnet_name }}"
-        state: present
-        virtual_network_name: "{{ virtual_network_name }}"
-        resource_group: "{{ resource_group }}"
-        address_prefix_cidr: "10.1.0.0/24"
-        route_table: "{{ route_table_name }}"
