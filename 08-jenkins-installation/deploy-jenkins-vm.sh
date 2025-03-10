@@ -26,7 +26,7 @@ adminUser=azureuser
     az vm extension set \
         --publisher Microsoft.Azure.Extensions \
         --version 2.0 \
-        --name CustomScript \
+        --type CustomScript \
         --vm-name $virtualMachine \
         --resource-group $resourceGroup \
         --settings '{"fileUris": ["https://github.com/nbacadlabs/multibranch/tree/main/08-jenkins-installation/config-jenkins.sh"],"commandToExecute": "./config-jenkins.sh"}'
