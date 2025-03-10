@@ -3,9 +3,10 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
+  DEFAULT_PATH: "https://backend.nexgbitsacademy.com:8000"
   SQL_ENGINE: "django.db.backends.mysql"
-  SQL_DATABASE: "msdb"
-  SQL_USER: "nbadmin"
-  SQL_PASSWORD: "+Laravan2010"
-  SQL_HOST: "0.0.0.0"
+  SQL_DATABASE: "bXNkYg=="
+  SQL_USER: "bmJhZG1pbg=="
+  SQL_PASSWORD: "+K0xhcmF2YW4yMDEw"
+  SQL_HOST: "mysql-service"
   SQL_PORT: "3306"
