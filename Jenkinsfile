@@ -88,4 +88,4 @@ pipeline {
     }
 }
 
-//  kubectl apply -f 02-clustermgmt/
+//  kubectl apply -f 02-clustermgmt/ #
