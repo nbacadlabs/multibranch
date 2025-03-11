@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"aks","Source":"./modules/aks","Dir":"modules/aks"},{"Key":"nsg","Source":"./modules/nsg","Dir":"modules/nsg"},{"Key":"vm","Source":"./modules/vm","Dir":"modules/vm"},{"Key":"vnet","Source":"./modules/vnet","Dir":"modules/vnet"}]}

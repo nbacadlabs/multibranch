@@ -9,7 +9,8 @@ packages:
 runcmd:
   - sudo apt update
   - sudo apt install -y openjdk-17-jre
-  - echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+  - wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
+  - sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
   - sudo apt-get update
   - sudo ufw allow 8080
   - sudo ufw allow OpenSSH
@@ -17,11 +18,9 @@ runcmd:
   - sudo ufw allow 443/tcp
   - sudo ufw allow 80/tcp
   - sudo ufw allow 8080/tcp
-  - sudo chmod 644 /usr/share/keyrings/jenkins-keyring.asc
   - sudo apt-get install jenkins
-  - cat /var/lib/jenkins/secrets/initialAdminPassword
   - sudo cat /var/lib/jenkins/secrets/initialAdminPassword
   - sudo systemctl enable jenkins
-  - sudo ufw enable -yes
+  - sudo ufw enable -y
  
   
