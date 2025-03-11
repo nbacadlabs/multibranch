@@ -58,7 +58,7 @@ pipeline {
             // Verify Azure CLI installation new files
             sh 'az version'
             script {
-                    withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
+                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
                         sh '''
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         az account show
@@ -74,7 +74,7 @@ pipeline {
               container('node') {
                 sh 'az version'
                 script {
-                    withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
+                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
                         sh '''
                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                         az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --overwrite-existing
