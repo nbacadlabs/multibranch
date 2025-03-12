@@ -14,6 +14,9 @@ pipeline {
             '''
         }
     }
+    tools {
+        maven 'sonarinstall' // Replace with the name you configured in Global Tool Configuration
+    }
     stages {
         stage('Scan') {
             steps {
