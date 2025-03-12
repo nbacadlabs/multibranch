@@ -1,4 +1,4 @@
-//az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --overwrite-existing. 
+//az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --overwrite-existing. testing
 pipeline {
     agent {
         kubernetes {
