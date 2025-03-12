@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Scan') {
             steps {
-                  withSonarQubeEnv(installationName: 'sonarinstall') {
+                  withSonarQubeEnv(installationName: 'SonarScanner') {
                   sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=sonatest1 -Dsonar.projectName='sonatest1'"
                 }
             }
