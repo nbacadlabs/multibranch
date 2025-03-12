@@ -23,10 +23,9 @@ pipeline {
     stages {
       stage('SonarQube Analysis') {
         steps {
-          container('podtemplate') {
               withSonarQubeEnv(installationName: 'SonarScanner') {
-                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=sonatest1 -Dsonar.projectName='sonatest1'"
-              }
+                // sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=sonatest1 -Dsonar.projectName='sonatest1'"
+                sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
             }
           }
         }
