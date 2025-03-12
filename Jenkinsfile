@@ -22,9 +22,14 @@ pipeline {
     }
     stages {
       stage('SonarQube Analysis') {
-        def scannerHome = tool 'SonarScanner';
-        withSonarQubeEnv() {
-          sh "${scannerHome}/bin/sonar-scanner"
+        steps {
+          container('podtemplate') {
+            def scannerHome = tool 'SonarScanner';
+              withSonarQubeEnv() {
+              sh "${scannerHome}/bin/sonar-scanner"
+            }
+          }
+        
         }
       }
       stage('Setup and Install Azure CLI') {
