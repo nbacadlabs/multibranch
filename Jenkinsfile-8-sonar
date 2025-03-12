@@ -1,13 +1,15 @@
 pipeline {
     agent {
         kubernetes {
+            label 'maven-agent'  // Label for the Kubernetes agent
+            defaultContainer 'maven'  // Default container for the pipeline
             yaml '''
                 apiVersion: v1
                 kind: Pod
                 spec:
                   containers:
                   - name: maven
-                    image: maven:3.8.3-openjdk-17  // Use Maven container with JDK 11
+                    image: maven:3.8.3-openjdk-17  # Correct Maven container with JDK 17
                     command:
                     - cat
                     tty: true
@@ -22,21 +24,20 @@ pipeline {
     stages {
         stage('Checkout SCM') {
             steps {
-                checkout scm
+                checkout scm  // Checkout the source code from SCM
             }
         }
 
         stage('Maven Build & SonarQube Analysis') {
             steps {
                 container('maven') {
-                    // Run Maven build inside the container
+                    // Run Maven build inside the Maven container
                     sh '''
                     ./mvnw clean install org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.login=${SONARQUBE_TOKEN}
                     '''
                 }
             }
         }
-
     }
 
     post {
