@@ -20,6 +20,7 @@ RUN apk update && \
     libffi-dev \
     openssl-dev \
     cargo && \
+    
     # Install Terraform
     curl -fsSL -o terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
     unzip terraform.zip && \
