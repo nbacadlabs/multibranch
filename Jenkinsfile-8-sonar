@@ -1,8 +1,5 @@
 pipeline {
     agent {
-        environment {
-            SONARQUBE_TOKEN = credentials('Sona_Test_Token')  // Define SonarQube token for authentication
-        }
         kubernetes {
           yaml '''
             apiVersion: v1
@@ -16,6 +13,9 @@ pipeline {
                 tty: true
             '''
         }
+    }
+    environment {
+        SONARQUBE_TOKEN = credentials('Sona_Test_Token')  // Define SonarQube token for authentication
     }
 
     stages {
