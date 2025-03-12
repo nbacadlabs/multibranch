@@ -74,6 +74,12 @@ pipeline {
           }
         }
       }
+      stage('SonarQube Analysis') {
+        def scannerHome = tool 'SonarScanner';
+        withSonarQubeEnv() {
+          sh "${scannerHome}/bin/sonar-scanner"
+        }
+      }
       stage('Azure Login') {
             steps {
               container('podtemplate') {
