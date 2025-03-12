@@ -1,0 +1,26 @@
+pipeline {
+    agent {
+        kubernetes {
+          yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+              - name: podtemplate
+                image: vakem/kubepodtemplate
+                command:
+                - cat
+                tty: true
+            '''
+        }
+    }
+    stages {
+        stage('Scan') {
+            steps {
+                withSonarQubeEnv(installationName: 'SonarScanner') {
+                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+                }
+            }
+        }
+    }
+}
