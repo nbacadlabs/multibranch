@@ -21,6 +21,16 @@ pipeline {
         BRANCH_NAME = "main"
     }
     stages {
+      stage('SonarQube Analysis') {
+        steps {
+            script {
+                def scannerHome = tool 'sonaqubetest' // Make sure the correct SonarQube tool name is provided
+                withSonarQubeEnv('sonaqubetest') { // Ensure 'sonarqube' matches the configured SonarQube server in Jenkins
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
+      }
       stage('Setup and Install Azure CLI') {
         steps {
           container('podtemplate') {
@@ -72,12 +82,6 @@ pipeline {
                     }
             }
           }
-        }
-      }
-      stage('SonarQube Analysis') {
-        def scannerHome = tool 'sonaqubetest';
-        withSonarQubeEnv() {
-          sh "${scannerHome}/bin/sonar-scanner"
         }
       }
       stage('Azure Login') {
