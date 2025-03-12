@@ -24,16 +24,11 @@ pipeline {
       stage('SonarQube Analysis') {
         steps {
           container('podtemplate') {
-            def scannerHome = tool 'SonarScanner';
-            script {
-              // Use the SonarQube scanner configured in Jenkins
-              def scannerHome = tool 'SonarQubeScanner' // Name here should match your configuration
-              withSonarQubeEnv() { // Make sure 'sonarqube' matches the SonarQube server name configured
-                  sh "${scannerHome}/bin/sonar-scanner"
+              withSonarQubeEnv(installationName: 'SonarScanner') {
+                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=sonatest1 -Dsonar.projectName='sonatest1'"
               }
             }
           }
-        
         }
       }
       stage('Setup and Install Azure CLI') {
