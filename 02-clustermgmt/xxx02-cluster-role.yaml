@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: jenkins-role
+  name: admin
 rules:
   - apiGroups: [""]
     resources: ["pods", "pods/log", "services", "nodes", "namespaces", "secrets", "configmaps", "persistentvolumeclaims"]

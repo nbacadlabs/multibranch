@@ -31,10 +31,16 @@ pipeline {
               apk add --no-cache curl bash jq sudo unzip py3-pip python3-dev gcc musl-dev libffi-dev openssl-dev cargo
               # Installation terraform
               TERRAFORM_VERSION=$(curl -sL https://api.github.com/repos/hashicorp/terraform/releases/latest | grep '"tag_name"' | cut -d '"' -f 4 | sed 's/v//')
+              # Download the corresponding Terraform binary for the latest version
               curl -fsSL -o terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
-              unzip terraform.zips
+              # Unzip the downloaded ZIP file
+              unzip terraform.zip
+              # Move the Terraform binary to /usr/local/bin
               mv terraform /usr/local/bin/
+              # Make Terraform executable
               chmod +x /usr/local/bin/terraform
+
+              # Verify the Terraform installation by displaying its version
               terraform version
               # installation of kubectl
               curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"
