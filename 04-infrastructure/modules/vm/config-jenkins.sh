@@ -18,7 +18,7 @@ sudo apt update
 sudo apt install -y openjdk-17-jre
 sudo apt-get update
 wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys #app key
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5BA31D57EF5975CA
 sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
 sudo apt-get update
 sudo ufw allow 8080
@@ -27,7 +27,7 @@ sudo ufw allow 22/tcp
 sudo ufw allow 443/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 8080/tcp
-sudo apt-get install jenkins
+sudo apt-get install -y jenkins
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 sudo systemctl enable jenkins
 sudo ufw enable -y

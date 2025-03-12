@@ -159,7 +159,7 @@ resource "azurerm_linux_virtual_machine" "nbaks_vm" {
     version   = "latest"
   }
 
-  # custom_data = base64encode(file("${path.module}/config-jenkins.sh"))
+  custom_data = base64encode(file("${path.module}/config-jenkins.sh"))
   # custom_data = filebase64("~/terraform/azure-infra/modules/vm/cloud_init.yaml")
 }
 

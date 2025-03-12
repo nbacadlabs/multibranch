@@ -37,7 +37,7 @@ subnet_id      = "/subscriptions/12345678-1234-1234-1234-123456789abc/resourceGr
 aks_name        = "prod-aks"
 aks_cluster_name = "prod-aks-cluster"
 dns_prefix      = "prodaks"
-node_count      = 2
+node_count      = 1
 node_vm_size    = "Standard_D2s_v3"
 
 # Tags (Metadata)
