@@ -25,8 +25,12 @@ pipeline {
         steps {
           container('podtemplate') {
             def scannerHome = tool 'SonarScanner';
-              withSonarQubeEnv() {
-              sh "${scannerHome}/bin/sonar-scanner"
+            script {
+              // Use the SonarQube scanner configured in Jenkins
+              def scannerHome = tool 'SonarQubeScanner' // Name here should match your configuration
+              withSonarQubeEnv('sonarqube') { // Make sure 'sonarqube' matches the SonarQube server name configured
+                  sh "${scannerHome}/bin/sonar-scanner"
+              }
             }
           }
         
