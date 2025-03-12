@@ -24,7 +24,7 @@ pipeline {
       stage('SonarQube Analysis') {
         steps {
             script {
-                def scannerHome = tool 'sonaqube' // Make sure the correct SonarQube tool name is provided
+                def scannerHome = tool 'SonarQubeScanner' // Make sure the correct SonarQube tool name is provided
                 withSonarQubeEnv('sonaqubetest') { // Ensure 'sonarqube' matches the configured SonarQube server in Jenkins
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
