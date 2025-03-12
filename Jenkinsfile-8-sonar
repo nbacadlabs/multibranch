@@ -1,34 +1,11 @@
-pipeline {
-    agent {
-        kubernetes {
-          yaml '''
-            apiVersion: v1
-            kind: Pod
-            spec:
-              containers:
-              - name: podtemplate
-                image: vakem/kubepodtemplate
-                command:
-                - cat
-                tty: true
-            '''
-        }
+node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('SonarQube Analysis') {
+    def scannerHome = tool 'SonarScanner';
+    withSonarQubeEnv() {
+      sh "${scannerHome}/bin/sonar-scanner"
     }
-    environment {
-        SONARQUBE_TOKEN = credentials('Sona_Test_Token')  // Define SonarQube token for authentication
-    }
-
-    stages {
-        stage('Scan') {
-            steps {
-                  withSonarQubeEnv(installationName: 'SonarScanner') {
-                    ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.login=$SONARQUBE_TOKEN \
-                        -Dsonar.working.directory=\${WORKSPACE}/sonar \
-                        -Dsonar.scanner.metadataFilePath=\${WORKSPACE}/sonar/report-task.txt
-                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=sonatest1 -Dsonar.projectName='sonatest1'"
-                }
-            }
-        }
-    }
+  }
 }
