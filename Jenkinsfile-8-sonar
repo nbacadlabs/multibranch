@@ -1,14 +1,12 @@
 pipeline {
     agent {
         kubernetes {
-            label 'maven-agent'  // Add a label for your Kubernetes agent if required
-            defaultContainer 'maven'  // Set the default container for the pipeline
             yaml '''
                 apiVersion: v1
                 kind: Pod
                 spec:
                   containers:
-                  - name: podtemplate
+                  - name: maven
                     image: maven:3.8.1-jdk-11  // Use Maven container with JDK 11
                     command:
                     - cat
