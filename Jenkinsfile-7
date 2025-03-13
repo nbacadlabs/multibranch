@@ -1,31 +1,35 @@
 pipeline {
-    agent none  // No agent for the pipeline as we're using docker in each stage
+    agent none // No global agent, we'll define specific agents for stages
 
     environment {
-        // These variables are placeholders; they will be replaced with your Jenkins credentials
-        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID') // Replace with your Subscription ID
+        AZURE_SP_CREDENTIALS = credentials('AZURE_SP_ID')
+        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+        // ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
+        // ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
+        // ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
     }
 
     stages {
         stage('Start Docker Container') {
+            agent { docker { image 'vakem/kubepodtemplate:latest' } }  // Specific agent for this stage
             steps {
                 script {
-                    // Start the Docker container and give it a name
-                    sh 'docker run --name my-custom-container -d vakem/kubepodtemplate:latest sleep infinity'
+                    // You can execute Docker-related commands here within the container
+                    echo 'Docker container started!'
                 }
             }
         }
 
         stage('Azure Login') {
+            agent { docker { image 'vakem/kubepodtemplate:latest' } }  // Same docker agent for Azure CLI
             steps {
                 script {
-                    // Use Jenkins 'withCredentials' to inject Azure Service Principal credentials
-                    withCredentials([usernamePassword(credentialsId: 'AZURE_SP_CREDENTIALS', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_CLIENT_SECRET')]) {
-                        // Execute the Azure login inside the container
+                    // Azure login using service principal credentials
+                    withCredentials([azureServicePrincipal('AZURE_SP_CREDENTIALS')]) {
                         sh '''
-                        docker exec my-custom-container az login --service-principal \
-                        -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        docker exec my-custom-container az account set --subscription $ARM_SUBSCRIPTION_ID
+                        echo "Logging in to Azure..."
+                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                        az account set --subscription $ARM_SUBSCRIPTION_ID
                         '''
                     }
                 }
@@ -33,38 +37,53 @@ pipeline {
         }
 
         stage('Terraform Init') {
+            agent { docker { image 'vakem/kubepodtemplate:latest' } }  // Same docker agent for terraform stages
             steps {
                 script {
-                    // Run terraform init inside the container
-                    sh 'docker exec my-custom-container terraform init ./05-learning'
+                    // Run Terraform init inside the Docker container
+                    echo "Running terraform init..."
+                    sh 'terraform init'
                 }
             }
         }
 
         stage('Terraform Plan') {
+            agent { docker { image 'vakem/kubepodtemplate:latest' } }  // Same docker agent for terraform stages
             steps {
                 script {
-                    // Run terraform plan inside the container
-                    sh 'docker exec my-custom-container terraform plan ./05-learning'
+                    // Run Terraform plan inside the Docker container
+                    echo "Running terraform plan..."
+                    sh 'terraform plan'
                 }
             }
         }
 
         stage('Terraform Apply') {
+            agent { docker { image 'vakem/kubepodtemplate:latest' } }  // Same docker agent for terraform stages
             steps {
                 script {
-                    // Run terraform apply inside the container
-                    sh 'docker exec my-custom-container terraform apply -auto-approve ./05-learning'
+                    // Run Terraform apply inside the Docker container
+                    echo "Running terraform apply..."
+                    sh 'terraform apply -auto-approve'
                 }
             }
         }
 
         stage('Stop Docker Container') {
+            agent { docker { image 'vakem/kubepodtemplate:latest' } }  // Same docker agent for cleanup
             steps {
                 script {
-                    // Stop and remove the Docker container after all stages are complete
-                    sh 'docker stop my-custom-container'
-                    sh 'docker rm my-custom-container'
+                    // Run cleanup commands inside the Docker container if needed
+                    echo "Stopping the Docker container!"
+                }
+            }
+        }
+
+        stage('Post Actions') {
+            steps {
+                script {
+                    // Ensure clean-up after execution
+                    echo "Post-actions executed!"
                 }
             }
         }
@@ -72,14 +91,16 @@ pipeline {
 
     post {
         always {
+            // You can add any post-condition actions here
             script {
-                // Clean up and logout from Azure CLI inside the container
-                sh 'docker exec my-custom-container az logout'
+                echo "Pipeline finished."
             }
         }
+
         success {
             echo 'Terraform deployment completed successfully!'
         }
+
         failure {
             echo 'Terraform deployment failed!'
         }

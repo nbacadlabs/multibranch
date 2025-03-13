@@ -62,6 +62,6 @@ pipeline {
           }
        }
     }
-}
+
 
 //  kubectl apply -f 02-clustermgmt/ #
