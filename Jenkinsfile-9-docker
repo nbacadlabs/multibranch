@@ -16,8 +16,9 @@ pipeline {
             steps {
                 sh 'node --version'
                 sh '''
+                    apk add --no-cache sudo
                     apk update && \
-                        apk add --no-cache \
+                    sudo apk add --no-cache \
                         curl \
                         bash \
                         jq \
@@ -29,7 +30,7 @@ pipeline {
                         musl-dev \
                         libffi-dev \
                         openssl-dev \
-                        cargo && \
+                        cargo 
                         
                         # Install Terraform
                         curl -fsSL -o terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
@@ -48,8 +49,8 @@ pipeline {
                         python3 -m pip install --upgrade pip setuptools wheel && \
                         pip install azure-cli && \
                         # Clean up the APK cache to reduce image size
-                        apk del gcc musl-dev libffi-dev openssl-dev cargo python3-dev && \
-                        rm -rf /var/cache/apk/* terraform.zip
+                        sudo apk del gcc musl-dev libffi-dev openssl-dev cargo python3-dev && \
+                        sudo rm -rf /var/cache/apk/* terraform.zip
                 '''
             }
         }
