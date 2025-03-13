@@ -11,6 +11,7 @@ pipeline {
         ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
         ARM_SUBSCRIPTION_ID    = credentials('AZURE_SUBSCRIPTION_ID')
         ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
+        ARM_RESOURCE_GROUP = ""
     }
 
     stages {
@@ -21,11 +22,15 @@ pipeline {
         }
         stage('Terraform init') {
             steps {
-                sh 'terraform init'
+                sh '''
+                cd ./05-learning
+                terraform init
+                '''
             }
         }
         stage('Plan') {
             steps {
+                cd ./05-learning
                 sh 'terraform plan -out tfplan'
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
@@ -33,6 +38,7 @@ pipeline {
         stage('Apply / Destroy') {
             steps {
                 script {
+                    cd ./05-learning
                     if (params.action == 'apply') {
                         if (!params.autoApprove) {
                             def plan = readFile 'tfplan.txt'
