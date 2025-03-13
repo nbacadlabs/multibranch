@@ -41,7 +41,7 @@ pipeline {
                     
                     // Terraform Plan with required variables
                     echo "Running terraform plan..."
-                    sh 'terraform init pwd/05-learning'
+                    sh 'terraform init -chdir=pwd/05-learning'
                 }
             }
         }
