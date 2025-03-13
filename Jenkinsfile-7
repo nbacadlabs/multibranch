@@ -1,27 +1,25 @@
 pipeline {
-    // agent {
-    //     kubernetes {
-    //         yaml '''
-    //         apiVersion: v1
-    //         kind: Pod
-    //         spec:
-    //           containers:
-    //           - name: terraform
-    //             image: hashicorp/terraform:latest
-    //             command: [ "sleep" ]
-    //             args: [ "infinity" ]
-    //           - name: azure-cli
-    //             image: mcr.microsoft.com/azure-cli
-    //             command: [ "sleep" ]
-    //             args: [ "infinity" ]
-    //         '''
-    //     }
-    // }
-    agent none
+    agent {
+        kubernetes {
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+              - name: terraform
+                image: hashicorp/terraform:latest
+                command: [ "sleep" ]
+                args: [ "infinity" ]
+              - name: azure-cli
+                image: mcr.microsoft.com/azure-cli
+                command: [ "sleep" ]
+                args: [ "infinity" ]
+            '''
+        }
+    }
 
     environment {
-        AZURE_SP_ID = credentials('AZURE_SP_ID')
-        ARM_SUBSCRIPTION_ID= credentials('AZURE_SUBSCRIPTION_ID')
+        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
     }
 
     stages {
@@ -88,7 +86,7 @@ pipeline {
                     az --version
                     '''
                     script {
-                        withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+                        withCredentials([azureServicePrincipal('Terraform_Secret_ID')]) {
                             sh '''
                             az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
                             az account set --subscription $ARM_SUBSCRIPTION_ID

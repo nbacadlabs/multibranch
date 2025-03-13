@@ -1,59 +1,84 @@
 pipeline {
-    agent none  // no agent for the pipeline as we are using docker commands in stages
+    agent none  // We will specify agents per stage
 
     environment {
         ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+        ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
+        ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
+        ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
     }
 
     stages {
-        stage('Start Docker Container') {
+        stage('Checkout Code') {
+            agent any  // Use any agent for code checkout
             steps {
-                // Start the Docker container and give it a name
+                checkout scm  // Pull the latest code from the repository
+            }
+        }
+
+        stage('Start Docker Container') {
+            agent { docker { image 'hashicorp/terraform:latest' } }  // Use the official Terraform Docker image
+            steps {
                 script {
-                    sh 'docker run --name terraformconn -d vakem/kubepodtemplate:latest sleep infinity'
+                    echo 'Starting Docker container with Terraform image.'
+                }
+            }
+        }
+
+        stage('Azure Login') {
+            agent { docker { image 'hashicorp/terraform:latest' } }  // Same image to ensure the correct environment for Azure CLI
+            steps {
+                script {
+                    // Login to Azure using the service principal
+                    withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
+                        sh '''
+                        echo "Logging in to Azure..."
+                        az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+                        az account set --subscription $ARM_SUBSCRIPTION_ID
+                        '''
+                    }
                 }
             }
         }
 
         stage('Terraform Init') {
+            agent { docker { image 'hashicorp/terraform:latest' } }  // Terraform Docker image
             steps {
                 script {
-                    // Run terraform init inside the container
-                    sh 'docker exec terraformconn terraform init ./05-learning'
+                    // Initialize Terraform
+                    echo "Running terraform init..."
+                    sh 'terraform init ./05-learning'  // Run terraform init to initialize the working directory
                 }
             }
         }
 
         stage('Terraform Plan') {
+            agent { docker { image 'hashicorp/terraform:latest' } }  // Same Terraform Docker image
             steps {
                 script {
-                    // Run terraform plan inside the container
-                    sh 'docker exec terraformconn terraform plan ./05-learning'
+                    // Run Terraform plan to preview the changes
+                    echo "Running terraform plan..."
+                    sh 'terraform plan -out=tfplan ./05-learning'  // Run terraform plan and save the plan to a file
                 }
             }
         }
 
         stage('Terraform Apply') {
+            agent { docker { image 'hashicorp/terraform:latest' } }  // Same Terraform Docker image
             steps {
                 script {
-                    withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
-                        sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account set --subscription $ARM_SUBSCRIPTION_ID
-                        '''
-                    }
-                    // Run terraform apply inside the container
-                    sh 'docker exec terraformconn terraform apply -auto-approve ./05-learning'
+                    // Apply the Terraform plan
+                    echo "Running terraform apply..."
+                    sh 'terraform apply -auto-approve tfplan'  // Automatically approve and apply the plan
                 }
             }
         }
 
         stage('Stop Docker Container') {
+            agent { docker { image 'hashicorp/terraform:latest' } }  // Same image to clean up
             steps {
-                // Stop and remove the Docker container after all stages are complete
                 script {
-                    sh 'docker stop terraformconn'
-                    sh 'docker rm terraformconn'
+                    echo "Stopping Docker container."
                 }
             }
         }
@@ -61,9 +86,10 @@ pipeline {
 
     post {
         always {
+            // Clean up and log out of Azure to ensure a clean environment
             script {
-                // Clean up and logout from Azure CLI
-                sh 'docker exec terraformconn az logout'
+                echo "Logging out of Azure."
+                sh 'az logout'  // Log out of Azure
             }
         }
         success {
