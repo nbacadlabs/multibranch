@@ -16,39 +16,27 @@ az vm open-port --port 8080 --resource-group $resourceGroup --name $virtualMachi
 sudo apt update
 
 # Remove the old PPA
-sudo add-apt-repository --remove ppa:webupd8team/java
+# sudo add-apt-repository --remove ppa:webupd8team/java
 
 # Install OpenJDK 17
 sudo apt update
 sudo apt install openjdk-17-jdk
 
-# Add Jenkins repository
-curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | sudo tee /etc/apt/trusted.gpg.d/jenkins.asc
-echo "deb http://pkg.jenkins.io/debian-stable/ /" | sudo tee -a /etc/apt/sources.list.d/jenkins.list
-
-# Update package lists
-sudo apt-get update
-
-# Install Jenkins
-sudo apt-get install jenkins
-
-# Start Jenkins
-sudo systemctl start jenkins
-sudo systemctl enable jenkins
-
-sudo useradd -m jenkins
-export DEBIAN_FRONTEND=noninteractive
-sudo systemctl status jenkins
-sudo tail -f /var/log/jenkins/jenkins.log
-
-sudo apt-get update
-sudo ufw allow OpenSSH
-sudo ufw allow 22/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 8080/tcp
-sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-sudo systemctl enable jenkins
+# jenkins_key=$(wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key)
+# echo "$jenkins_key" | sudo apt-key add -
+# sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $jenkins_key
+# sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+# sudo apt-get update
+# sudo ufw allow 8080
+# sudo ufw allow OpenSSH
+# sudo ufw allow 22/tcp
+# sudo ufw allow 443/tcp
+# sudo ufw allow 80/tcp
+# sudo ufw allow 8080/tcp
+# sudo apt-get install -y jenkins
+# sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+# sudo systemctl enable jenkins
+# sudo ufw enable -y
 
 # Docker
 sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
