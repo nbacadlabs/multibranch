@@ -1,97 +1,171 @@
 pipeline {
-    agent any 
+  agent {
+    node "agent-terraform"
+  }
 
-    environment {
-        TF_IN_AUTOMATION = "true"
-        // If using Azure Key Vault, you can define the KeyVault URL here
-        // KEYVAULT_URL = credentials('azure_keyvault_url') 
+
+  environment {
+    BRANCH = 'main'
+    REPO = 'https://github.com/nbacadlabs/multibranch.git'
+
+
+    ARM_SP_ID = credentials('AZURE_SP_ID')
+    ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
+    ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
+    ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+    ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
+  }
+
+  stages {
+
+
+    stage('Checkout Source') {
+
+
+      steps {
+        git branch: "$BRANCH",
+            url: "$REPO"
+      }
     }
 
-    stages {
-        stage('Terraform Init') {
-            steps {
-                script {
-                    // Use Azure Service Principal credentials to login
-                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
-                        sh '''
-                        echo "Logging into Azure..."
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account show
-                        '''
-                    }
-                    
-                    // Terraform Init
-                    echo "Running terraform init..."
-                    sh 'terraform init -chdir=./05-learning'
-                }
-            }
-        }
 
-        stage('Terraform Plan') {
-            steps {
-                script {
-                    // Use Azure Service Principal credentials to login again
-                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
-                        sh '''
-                        echo "Logging into Azure..."
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account show
-                        '''
-                    }
-                    
-                    // Terraform Plan with required variables
-                    echo "Running terraform plan..."
-                    sh 'terraform init -chdir=pwd/05-learning'
-                }
-            }
-        }
-
-        stage('Waiting for Approval') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    input message: "Do you want to deploy the infrastructure?", parameters: [
-                        [$class: 'TextParameterDefinition', defaultValue: 'Yes', description: 'Type Yes to approve', name: 'Approval']
-                    ]
-                }
-            }
-        }
-
-        // stage('Terraform Apply') {
-        //     steps {
-        //         script {
-        //             // Use Azure Service Principal credentials to login for Apply
-        //             withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
-        //                 sh '''
-        //                 echo "Logging into Azure..."
-        //                 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-        //                 az account show
-        //                 '''
-        //             }
-                    
-        //             // Terraform Apply with auto-approval
-        //             echo "Running terraform apply..."
-        //             sh '''
-        //             terraform apply -auto-approve \
-        //             -var "resource_group_name=$RG_NAME" \
-        //             -var "resource_group_region=$LOCATION" \
-        //             -var "web_app_name=$EGVB_APP_SERVICE_NAME" \
-        //             -var "app_service_plan_name=$EGVB_APP_SERVICE_PLAN_NAME"
-        //             '''
-        //         }
-        //     }
-        // }
+    stage('Terraform - init') {
+      steps {
+          sh 'terraform init ./05-learning -upgrade'
+      }
     }
 
-    post {
-        always {
-            echo 'Cleaning up...'
-            // Optional: Cleanup tasks after the pipeline finishes, such as logging out or other cleanup commands.
-        }
-        success {
-            echo 'Terraform deployment completed successfully!'
-        }
-        failure {
-            echo 'Terraform deployment failed!'
-        }
+
+    stage('Terraform - validate') {
+      steps {
+          sh 'terraform validate ./05-learning '
+      }
     }
-}
+
+
+    stage('Terraform - plan') {
+      steps {
+          sh 'terraform plan ./05-learning '
+      }
+    }
+
+
+    stage('Terraform - apply') {
+      steps {
+          sh 'terraform apply ./05-learning  -auto-approve'
+      }
+    }
+
+
+  }
+
+
+  post {
+    always {
+      cleanWs()
+    }
+  }
+} // pipeline
+
+
+
+
+
+
+// pipeline {
+//     agent any 
+
+//     environment {
+//         TF_IN_AUTOMATION = "true"
+//         // If using Azure Key Vault, you can define the KeyVault URL here
+//         // KEYVAULT_URL = credentials('azure_keyvault_url') 
+//     }
+
+//     stages {
+//         stage('Terraform Init') {
+//             steps {
+//                 script {
+//                     // Use Azure Service Principal credentials to login
+//                     withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+//                         sh '''
+//                         echo "Logging into Azure..."
+//                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+//                         az account show
+//                         '''
+//                     }
+                    
+//                     // Terraform Init
+//                     echo "Running terraform init..."
+//                     sh 'terraform init -chdir=./05-learning'
+//                 }
+//             }
+//         }
+
+//         stage('Terraform Plan') {
+//             steps {
+//                 script {
+//                     // Use Azure Service Principal credentials to login again
+//                     withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+//                         sh '''
+//                         echo "Logging into Azure..."
+//                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+//                         az account show
+//                         '''
+//                     }
+                    
+//                     // Terraform Plan with required variables
+//                     echo "Running terraform plan..."
+//                     sh 'terraform init -chdir=pwd/05-learning'
+//                 }
+//             }
+//         }
+
+//         stage('Waiting for Approval') {
+//             steps {
+//                 timeout(time: 10, unit: 'MINUTES') {
+//                     input message: "Do you want to deploy the infrastructure?", parameters: [
+//                         [$class: 'TextParameterDefinition', defaultValue: 'Yes', description: 'Type Yes to approve', name: 'Approval']
+//                     ]
+//                 }
+//             }
+//         }
+
+//         // stage('Terraform Apply') {
+//         //     steps {
+//         //         script {
+//         //             // Use Azure Service Principal credentials to login for Apply
+//         //             withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+//         //                 sh '''
+//         //                 echo "Logging into Azure..."
+//         //                 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+//         //                 az account show
+//         //                 '''
+//         //             }
+                    
+//         //             // Terraform Apply with auto-approval
+//         //             echo "Running terraform apply..."
+//         //             sh '''
+//         //             terraform apply -auto-approve \
+//         //             -var "resource_group_name=$RG_NAME" \
+//         //             -var "resource_group_region=$LOCATION" \
+//         //             -var "web_app_name=$EGVB_APP_SERVICE_NAME" \
+//         //             -var "app_service_plan_name=$EGVB_APP_SERVICE_PLAN_NAME"
+//         //             '''
+//         //         }
+//         //     }
+//         // }
+//     }
+
+//     post {
+//         always {
+//             echo 'Cleaning up...'
+//             // Optional: Cleanup tasks after the pipeline finishes, such as logging out or other cleanup commands.
+//         }
+//         success {
+//             echo 'Terraform deployment completed successfully!'
+//         }
+//         failure {
+//             echo 'Terraform deployment failed!'
+//         }
+//     }
+// }
