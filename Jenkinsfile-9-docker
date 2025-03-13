@@ -1,81 +1,84 @@
-pipeline {
-    agent any
-    tools {
-    terraform 'tf'
+pipeline{
+    agent any 
+    environment {
+        TF_IN_AUTOMATION = "true"
+        // KEYVAULT_URL = credentials('azure_keyvault_url') # keyVaultURL not able to be dereferenced with ${env.KEYVAULT_URL}, keeping for future reference
     }
-    // environment {
-    //     TF_HOME = tool('tf')
-    //     TF_IN_AUTOMATION = 'true'
-    //     PATH = "$TF_HOME:$PATH"
+    // parameters {
+    //     string(name: 'AZURE_KEYVAULT_URL', defaultValue: 'https://kv-cse-jenkins-example.vault.azure.net')
     // }
 
     stages {
-    //     stage('Terraform Init') {
-    //     steps {
-    //       withCredentials([azureServicePrincipal(
-    //                 credentialsId: 'SA_TF',
-    //                 subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-    //                 clientIdVariable: 'ARM_CLIENT_ID',
-    //                 clientSecretVariable: 'ARM_CLIENT_SECRET',
-    //                 tenantIdVariable: 'ARM_TENANT_ID'
-    //       )]) {
-    //       sh '''
-    //                     echo "Initialising Terraform and export variables to TF by init.sh"
-    //                     . ./init.sh
-    //                     terraform init -upgrade -reconfigure
-    //                     '''
-    //       }
-    //     }
-    //   }
-    //   stage('Terraform Plan') {
-    //     steps {
-    //       withCredentials([azureServicePrincipal(
-    //                 credentialsId: 'SA_TF',
-    //                 subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-    //                 clientIdVariable: 'ARM_CLIENT_ID',
-    //                 clientSecretVariable: 'ARM_CLIENT_SECRET',
-    //                 tenantIdVariable: 'ARM_TENANT_ID'
-    //       )]) {
-    //         sh '''
-    //                     echo "Creating Terraform Plan wwith SP variables"
-    //                     terraform  plan -var "client_id=$ARM_CLIENT_ID" -var "client_secret=$ARM_CLIENT_SECRET" -var "subscription_id=$ARM_SUBSCRIPTION_ID" -var "tenant_id=$ARM_TENANT_ID"
-    //                     '''
-    //       }
-    //     }
-    //   }
-    //   stage('Terraform Apply') {
-    //     steps {
-    //       withCredentials([azureServicePrincipal(
-    //                 credentialsId: 'SA_TF',
-    //                 subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
-    //                 clientIdVariable: 'ARM_CLIENT_ID',
-    //                 clientSecretVariable: 'ARM_CLIENT_SECRET',
-    //                 tenantIdVariable: 'ARM_TENANT_ID'
-    //       )]) {
-    //       sh '''
-    //                     echo "Applying the plan with auto approve and SP variables"
-    //                     terraform apply -auto-approve -var "client_id=$ARM_CLIENT_ID" -var "client_secret=$ARM_CLIENT_SECRET" -var "subscription_id=$ARM_SUBSCRIPTION_ID" -var "tenant_id=$ARM_TENANT_ID"
-    //                     ls -lah
-    //                     '''
-    //       }
-    //     }
-    //   }
-      stage('Terraform Destroy') {
-        steps {
-          withCredentials([azureServicePrincipal(
-                    credentialsId: 'AZURE_SP_ID',
-                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
-                    clientIdVariable: 'AZURE_CLIENT_ID',
-                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
-                    tenantIdVariable: 'AZURE_TENANT_ID'
-          )]) {
-          sh '''
-                        echo "Initialising Terraform Destroy"
-                        terraform destroy -auto-approve -var "client_id=$ARM_CLIENT_ID" -var "client_secret=$ARM_CLIENT_SECRET" -var "subscription_id=$ARM_SUBSCRIPTION_ID" -var "tenant_id=$ARM_TENANT_ID"
-                        ls -lah
-                        '''
-          }
+        stage('Terraform Init'){
+           steps {
+            script {
+                withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+                    sh '''
+                    az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                    az account show
+                    '''
+                }
+            }
+           }
+         } 
         }
-      }
-    }
+
+        stage('Terraform Plan'){
+            
+            // options {
+            //   azureKeyVault(
+            //     credentialID: "azure_service_principal",
+            //     keyVaultURL: "${params.AZURE_KEYVAULT_URL}",
+            //     secrets: [
+            //         [envVariable: 'BACKEND_STORAGE_ACCOUNT_NAME', name: 'BACKEND-STORAGE-ACCOUNT-NAME', secretType: 'Secret'],
+            //         [envVariable: 'BACKEND_STORAGE_ACCOUNT_CONTAINER_NAME', name: 'BACKEND-STORAGE-ACCOUNT-CONTAINER-NAME', secretType: 'Secret'],
+            //         [envVariable: 'BACKEND_KEY', name: 'BACKEND-KEY', secretType: 'Secret'],
+            //         [envVariable: 'RG_NAME', name: 'RG-NAME', secretType: 'Secret'],
+            //         [envVariable: 'ARM_ACCESS_KEY', name: 'BACKEND-ACCESS-KEY', secretType: 'Secret'],
+            //         [envVariable: 'EGVB_APP_SERVICE_NAME', name: 'EGVB-APP-SERVICE-NAME', secretType: 'Secret'],
+            //         [envVariable: 'EGVB_APP_SERVICE_PLAN_NAME', name: 'EGVB-APP-SERVICE-PLAN-NAME', secretType: 'Secret'],
+            //         [envVariable: 'LOCATION', name: 'LOCATION', secretType: 'Secret']
+            //     ]
+            //   )
+            // }
+
+            // steps {
+            //         ansiColor('xterm') {
+            //         withCredentials([azureServicePrincipal(
+            //         credentialsId: 'azure_service_principal',
+            //         subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+            //         clientIdVariable: 'ARM_CLIENT_ID',
+            //         clientSecretVariable: 'ARM_CLIENT_SECRET',
+            //         tenantIdVariable: 'ARM_TENANT_ID'
+            //     )]) {
+            //             dir("src") {
+            //             sh """
+            //             echo "Creating Terraform Plan"
+            //             terraform plan -var "resource_group_name=$RG_NAME" -var "resource_group_region=$LOCATION" -var "web_app_name=$EGVB_APP_SERVICE_NAME" -var "app_service_plan_name=$EGVB_APP_SERVICE_PLAN_NAME"
+            //             """
+            //             }
+            //          }
+            //     }
+            //  }
+            steps {
+                script {
+                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+                        sh '''
+                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                        az account show
+                        '''
+                    }
+                }
+           }
+        } 
+
+        stage('Waiting for Approval'){
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    input (message: "Deploy the infrastructure?")
+                }
+            }
+        }
+
+       
 }
