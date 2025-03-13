@@ -22,7 +22,7 @@ pipeline {
                     
                     // Terraform Init
                     echo "Running terraform init..."
-                    sh 'terraform init -chdir=pwd/05-learning'
+                    sh 'terraform init -chdir=./05-learning'
                 }
             }
         }
