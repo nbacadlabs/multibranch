@@ -1,4 +1,4 @@
-resource_group_name="nbaksclust-rg"
+resource_group_name="nbtest-rg"
 location="eastus"
 vm_name = "nbtest-vm"
 admin_username = "nbadmin"
