@@ -22,7 +22,7 @@ pipeline {
                     
                     // Terraform Init
                     echo "Running terraform init..."
-                    sh 'terraform init ./05-learning'
+                    sh 'terraform init pwd/05-learning'
                 }
             }
         }
@@ -42,7 +42,7 @@ pipeline {
                     // Terraform Plan with required variables
                     echo "Running terraform plan..."
                     sh '''
-                    terraform plan ./05-learning
+                    terraform plan pwd/05-learning
                     '''
                 }
             }
@@ -58,30 +58,30 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    // Use Azure Service Principal credentials to login for Apply
-                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
-                        sh '''
-                        echo "Logging into Azure..."
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account show
-                        '''
-                    }
+        // stage('Terraform Apply') {
+        //     steps {
+        //         script {
+        //             // Use Azure Service Principal credentials to login for Apply
+        //             withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
+        //                 sh '''
+        //                 echo "Logging into Azure..."
+        //                 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+        //                 az account show
+        //                 '''
+        //             }
                     
-                    // Terraform Apply with auto-approval
-                    echo "Running terraform apply..."
-                    sh '''
-                    terraform apply -auto-approve \
-                    -var "resource_group_name=$RG_NAME" \
-                    -var "resource_group_region=$LOCATION" \
-                    -var "web_app_name=$EGVB_APP_SERVICE_NAME" \
-                    -var "app_service_plan_name=$EGVB_APP_SERVICE_PLAN_NAME"
-                    '''
-                }
-            }
-        }
+        //             // Terraform Apply with auto-approval
+        //             echo "Running terraform apply..."
+        //             sh '''
+        //             terraform apply -auto-approve \
+        //             -var "resource_group_name=$RG_NAME" \
+        //             -var "resource_group_region=$LOCATION" \
+        //             -var "web_app_name=$EGVB_APP_SERVICE_NAME" \
+        //             -var "app_service_plan_name=$EGVB_APP_SERVICE_PLAN_NAME"
+        //             '''
+        //         }
+        //     }
+        // }
     }
 
     post {
