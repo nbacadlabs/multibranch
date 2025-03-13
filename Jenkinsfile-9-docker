@@ -30,7 +30,7 @@ pipeline {
 
     stage('Terraform - init') {
       steps {
-          cd ./05-learning
+          sh 'cd ./05-learning'
           sh 'terraform init -upgrade'
       }
     }
@@ -38,7 +38,7 @@ pipeline {
 
     stage('Terraform - validate') {
       steps {
-          cd ./05-learning
+          sh 'cd ./05-learning'
           sh 'terraform validate'
       }
     }
@@ -46,7 +46,7 @@ pipeline {
 
     stage('Terraform - plan') {
       steps {
-          cd ./05-learning
+          sh 'cd ./05-learning'
           sh 'terraform plan'
       }
     }
@@ -54,7 +54,7 @@ pipeline {
 
     stage('Terraform - apply') {
       steps {
-          cd ./05-learning
+          sh 'cd ./05-learning'
           sh 'terraform apply -auto-approve'
       }
     }
