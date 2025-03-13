@@ -71,16 +71,16 @@ pipeline {
                 '''
             }
         }
-        stage('Back-others') {
-            agent {
-                docker { 
-                    image 'vakem/kubepodtemplate:latest'
-                    args '--user root'
-                }
-            }
-            steps {
-                sh 'az --version'
-            }
-        }
+        // stage('Back-others') {
+        //     agent {
+        //         docker { 
+        //             image 'vakem/kubepodtemplate:latest'
+        //             args '--user root'
+        //         }
+        //     }
+        //     steps {
+        //         sh 'az --version'
+        //     }
+        // }
     }
 }
