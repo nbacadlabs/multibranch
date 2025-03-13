@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        docker{ image 'vakem/kubepodtemplate:latest'}
+        docker{ image 'vakem/kubepodtemplate'}
     }
 
     stages {
