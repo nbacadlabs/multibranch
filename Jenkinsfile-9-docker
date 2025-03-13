@@ -12,6 +12,9 @@ pipeline {
         stage('Front-end') {
             agent {
                 docker { image 'node:16-alpine'}
+            }
+            steps {
+                sh 'node --version'
                 sh '''
                     apk update && \
                         apk add --no-cache \
@@ -48,9 +51,6 @@ pipeline {
                         apk del gcc musl-dev libffi-dev openssl-dev cargo python3-dev && \
                         rm -rf /var/cache/apk/* terraform.zip
                 '''
-            }
-            steps {
-                sh 'node --version'
             }
         }
     }
