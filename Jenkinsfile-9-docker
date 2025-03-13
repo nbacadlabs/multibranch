@@ -1,71 +1,57 @@
 pipeline {
-  agent {
-    node "agent-terraform"
-  }
+    agent any
 
-
-  environment {
-    BRANCH = 'main'
-    REPO = 'https://github.com/nbacadlabs/multibranch.git'
-
-
-    ARM_SP_ID = credentials('AZURE_SP_ID')
-    ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
-    ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
-    ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
-    ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
-  }
-
-  stages {
-
-
-    stage('Checkout Source') {
-
-
-      steps {
-        git branch: "$BRANCH",
-            url: "$REPO"
-      }
+    parameters {
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select the action to perform')
     }
 
-
-    stage('Terraform - init') {
-      steps {
-          sh 'terraform init ./05-learning -upgrade'
-      }
+    environment {
+        ARM_CLIENT_ID    = credentials('AZURE_CLIENT_ID')
+        ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
+        ARM_SUBSCRIPTION_ID    = credentials('AZURE_SUBSCRIPTION_ID')
+        ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
     }
 
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/CodeSagarOfficial/jenkins-scripts.git'
+            }
+        }
+        stage('Terraform init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        stage('Plan') {
+            steps {
+                sh 'terraform plan -out tfplan'
+                sh 'terraform show -no-color tfplan > tfplan.txt'
+            }
+        }
+        stage('Apply / Destroy') {
+            steps {
+                script {
+                    if (params.action == 'apply') {
+                        if (!params.autoApprove) {
+                            def plan = readFile 'tfplan.txt'
+                            input message: "Do you want to apply the plan?",
+                            parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                        }
 
-    stage('Terraform - validate') {
-      steps {
-          sh 'terraform validate ./05-learning '
-      }
+                        sh 'terraform ${action} -input=false tfplan'
+                    } else if (params.action == 'destroy') {
+                        sh 'terraform ${action} --auto-approve'
+                    } else {
+                        error "Invalid action selected. Please choose either 'apply' or 'destroy'."
+                    }
+                }
+            }
+        }
+
     }
-
-
-    stage('Terraform - plan') {
-      steps {
-          sh 'terraform plan ./05-learning '
-      }
-    }
-
-
-    stage('Terraform - apply') {
-      steps {
-          sh 'terraform apply ./05-learning  -auto-approve'
-      }
-    }
-
-
-  }
-
-
-  post {
-    always {
-      cleanWs()
-    }
-  }
-} // pipeline
+}
 
 
 
