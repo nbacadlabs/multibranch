@@ -1,102 +1,81 @@
 pipeline {
-    agent none  // We will specify agents per stage
-
+    agent any
+    tools {
+    terraform 'tf'
+    }
     environment {
-        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
-        ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
-        ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
-        ARM_TENANT_ID = credentials('AZURE_TENANT_ID')
+        TF_HOME = tool('tf')
+        TF_IN_AUTOMATION = 'true'
+        PATH = "$TF_HOME:$PATH"
     }
 
     stages {
-        stage('Checkout Code') {
-            agent any  // Use any agent for code checkout
-            steps {
-                checkout scm  // Pull the latest code from the repository
-            }
-        }
-
-        stage('Start Docker Container') {
-            agent { docker { image 'hashicorp/terraform:latest' } }  // Use the official Terraform Docker image
-            steps {
-                script {
-                    echo 'Starting Docker container with Terraform image.'
-                }
-            }
-        }
-
-        stage('Azure Login') {
-            agent { docker { image 'hashicorp/terraform:latest' } }  // Same image to ensure the correct environment for Azure CLI
-            steps {
-                script {
-                    // Login to Azure using the service principal
-                    withCredentials([azureServicePrincipal('AZURE_SP_ID')]) {
-                        sh '''
-                        echo "Logging in to Azure..."
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        az account set --subscription $ARM_SUBSCRIPTION_ID
+    //     stage('Terraform Init') {
+    //     steps {
+    //       withCredentials([azureServicePrincipal(
+    //                 credentialsId: 'SA_TF',
+    //                 subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+    //                 clientIdVariable: 'ARM_CLIENT_ID',
+    //                 clientSecretVariable: 'ARM_CLIENT_SECRET',
+    //                 tenantIdVariable: 'ARM_TENANT_ID'
+    //       )]) {
+    //       sh '''
+    //                     echo "Initialising Terraform and export variables to TF by init.sh"
+    //                     . ./init.sh
+    //                     terraform init -upgrade -reconfigure
+    //                     '''
+    //       }
+    //     }
+    //   }
+    //   stage('Terraform Plan') {
+    //     steps {
+    //       withCredentials([azureServicePrincipal(
+    //                 credentialsId: 'SA_TF',
+    //                 subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+    //                 clientIdVariable: 'ARM_CLIENT_ID',
+    //                 clientSecretVariable: 'ARM_CLIENT_SECRET',
+    //                 tenantIdVariable: 'ARM_TENANT_ID'
+    //       )]) {
+    //         sh '''
+    //                     echo "Creating Terraform Plan wwith SP variables"
+    //                     terraform  plan -var "client_id=$ARM_CLIENT_ID" -var "client_secret=$ARM_CLIENT_SECRET" -var "subscription_id=$ARM_SUBSCRIPTION_ID" -var "tenant_id=$ARM_TENANT_ID"
+    //                     '''
+    //       }
+    //     }
+    //   }
+    //   stage('Terraform Apply') {
+    //     steps {
+    //       withCredentials([azureServicePrincipal(
+    //                 credentialsId: 'SA_TF',
+    //                 subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+    //                 clientIdVariable: 'ARM_CLIENT_ID',
+    //                 clientSecretVariable: 'ARM_CLIENT_SECRET',
+    //                 tenantIdVariable: 'ARM_TENANT_ID'
+    //       )]) {
+    //       sh '''
+    //                     echo "Applying the plan with auto approve and SP variables"
+    //                     terraform apply -auto-approve -var "client_id=$ARM_CLIENT_ID" -var "client_secret=$ARM_CLIENT_SECRET" -var "subscription_id=$ARM_SUBSCRIPTION_ID" -var "tenant_id=$ARM_TENANT_ID"
+    //                     ls -lah
+    //                     '''
+    //       }
+    //     }
+    //   }
+      stage('Terraform Destroy') {
+        steps {
+          withCredentials([azureServicePrincipal(
+                    credentialsId: 'AZURE_SP_ID',
+                    subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID',
+                    clientIdVariable: 'AZURE_CLIENT_ID',
+                    clientSecretVariable: 'AZURE_CLIENT_SECRET',
+                    tenantIdVariable: 'AZURE_TENANT_ID'
+          )]) {
+          sh '''
+                        echo "Initialising Terraform Destroy"
+                        terraform destroy -auto-approve -var "client_id=$ARM_CLIENT_ID" -var "client_secret=$ARM_CLIENT_SECRET" -var "subscription_id=$ARM_SUBSCRIPTION_ID" -var "tenant_id=$ARM_TENANT_ID"
+                        ls -lah
                         '''
-                    }
-                }
-            }
+          }
         }
-
-        stage('Terraform Init') {
-            agent { docker { image 'hashicorp/terraform:latest' } }  // Terraform Docker image
-            steps {
-                script {
-                    // Initialize Terraform
-                    echo "Running terraform init..."
-                    sh 'terraform init ./05-learning'  // Run terraform init to initialize the working directory
-                }
-            }
-        }
-
-        stage('Terraform Plan') {
-            agent { docker { image 'hashicorp/terraform:latest' } }  // Same Terraform Docker image
-            steps {
-                script {
-                    // Run Terraform plan to preview the changes
-                    echo "Running terraform plan..."
-                    sh 'terraform plan -out=tfplan ./05-learning'  // Run terraform plan and save the plan to a file
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            agent { docker { image 'hashicorp/terraform:latest' } }  // Same Terraform Docker image
-            steps {
-                script {
-                    // Apply the Terraform plan
-                    echo "Running terraform apply..."
-                    sh 'terraform apply -auto-approve tfplan'  // Automatically approve and apply the plan
-                }
-            }
-        }
-
-        stage('Stop Docker Container') {
-            agent { docker { image 'hashicorp/terraform:latest' } }  // Same image to clean up
-            steps {
-                script {
-                    echo "Stopping Docker container."
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            // Clean up and log out of Azure to ensure a clean environment
-            script {
-                echo "Logging out of Azure."
-                sh 'az logout'  // Log out of Azure
-            }
-        }
-        success {
-            echo 'Terraform deployment completed successfully!'
-        }
-        failure {
-            echo 'Terraform deployment failed!'
-        }
+      }
     }
 }
