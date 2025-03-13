@@ -26,6 +26,7 @@ pipeline {
                         bash \
                         jq \
                         sudo \
+                        wget \
                         unzip \
                         py3-pip \
                         python3-dev \
@@ -36,11 +37,22 @@ pipeline {
                         cargo 
                         
                         # Install Terraform
-                        #verify terraform version: https://www.terraform.io/downloads.html
-                        apt-get install unzip
-                        wget https://releases.hashicorp.com/terraform/1.11.2/terraform_1.11.2_linux_amd64.zip
-                        unzip terraform_1.11.2_linux_amd64.zip
+                        apk update
+                        apk add --no-cache unzip wget
+
+                        # Define Terraform version
+                        TERRAFORM_VERSION="1.11.2"
+
+                        # Download Terraform
+                        wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+                        # Unzip Terraform package
+                        unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
+                        # Move the terraform binary to /usr/local/bin for global access
                         mv terraform /usr/local/bin/
+
+                        # Verify the Terraform installation
                         terraform --version
                         # Install kubectl
                         curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
