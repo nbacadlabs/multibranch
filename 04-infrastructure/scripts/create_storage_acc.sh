@@ -6,8 +6,10 @@ STORAGE_ACCOUNT_NAME=tfstatenb100
 CONTAINER_NAME=nbtfstate
 LOCATION="eastus"
 
+
 # Create resource group
 az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
+
 
 # Create storage account
 az storage account create \
@@ -60,6 +62,7 @@ az storage container create \
 
 echo "Storage Account: $STORAGE_ACCOUNT_NAME"
 echo "Container: $CONTAINER_NAME"
+
 # echo "Key Vault: $KEYVAULT_NAME"
 
 

@@ -1,50 +1,41 @@
 #!/bin/bash
-export resourceGroup=nbjenkinsvm-rg
-virtualMachine=nbjenkins
-adminUser=azureuser
-# pathToKubeConfig=~/.kube/config
 
-# if [ -f $pathToKubeConfig ]
-# then
+# Define variables
+export AKS_INFRA_GROUP=nbaksclust-rg
+export VM_INFRA_GROUP=jenkins-vm-rg
+VM_NAME=nbjenkins
+ADMIN_USER=azureuser
+SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"  # Use absolute path for SSH key
+CUSTOM_SCRIPT='{"fileUris": ["https://github.com/nbacadlabs/multibranch/raw/main/08-jenkins-installation/config-jenkins.sh"],"commandToExecute": "./config-jenkins.sh"}'
 
-    # Create a resource group.
-    az group create --name $resourceGroup --location eastus
+# Create resource groups if they don't exist
+# az group create --name $AKS_INFRA_GROUP --location eastus
+az group create --name $VM_INFRA_GROUP --location eastus
 
-    # Create a new virtual machine, this creates SSH keys if not present.
-    az vm create --resource-group $resourceGroup --name $virtualMachine --admin-username $adminUser --image Ubuntu2204 --generate-ssh-keys
+# Create a new virtual machine, generating SSH keys if not present
+az vm create --resource-group $VM_INFRA_GROUP --name $VM_NAME --admin-username $ADMIN_USER --image Ubuntu2404 --ssh-key-values $SSH_KEY_PATH
 
-    # Open port 80 to allow web traffic to host.
-    az vm open-port --port 80 --resource-group $resourceGroup --name $virtualMachine  --priority 101
+# Open necessary ports (80, 22, 8080) for web and SSH traffic
+az vm open-port --port 80 --resource-group $VM_INFRA_GROUP --name $VM_NAME --priority 101
+az vm open-port --port 22 --resource-group $VM_INFRA_GROUP --name $VM_NAME --priority 102
+az vm open-port --port 8080 --resource-group $VM_INFRA_GROUP --name $VM_NAME --priority 103
 
-    # Open port 22 to allow ssh traffic to host.
-    az vm open-port --port 22 --resource-group $resourceGroup --name $virtualMachine --priority 102
+# Retrieve the public IP of the VM
+ip=$(az vm list-ip-addresses --resource-group $VM_INFRA_GROUP --name $VM_NAME --query [0].virtualMachine.network.publicIpAddresses[0].ipAddress -o tsv)
 
-    # Open port 8080 to allow web traffic to host.
-    az vm open-port --port 8080 --resource-group $resourceGroup --name $virtualMachine --priority 103
+# Retrieve the VM ID
+vm_id=$(az vm show --resource-group $VM_INFRA_GROUP --name $VM_NAME --query "id" --output tsv)
 
-    # Use CustomScript extension to install NGINX.
-    az vm extension set \
-        --publisher Microsoft.Azure.Extensions \
-        --version 2.0 \
-        --type CustomScript \
-        --vm-name $virtualMachine \
-        --resource-group $resourceGroup \
-        --settings '{"fileUris": ["https://github.com/nbacadlabs/multibranch/tree/main/08-jenkins-installation/config-jenkins.sh"],"commandToExecute": "./config-jenkins.sh"}'
+# Apply the CustomScript extension to the VM
+az vm extension set \
+  --name customScript \
+  --publisher Microsoft.Azure.Extensions \
+  --version 2.0 \
+  --vm-name $VM_NAME \
+  --resource-group $VM_INFRA_GROUP \
+  --settings "$CUSTOM_SCRIPT"
 
-    # Get public IP
-    ip=$(az vm list-ip-addresses --resource-group $resourceGroup --name $virtualMachine --query [0].virtualMachine.network.publicIpAddresses[0].ipAddress -o tsv)
-
-    #--- Copy Kube config file to Jenkins---
-    # ssh -o "StrictHostKeyChecking no" $adminUser@$ip sudo chmod 777 /var/lib/jenkins
-    # yes | scp $pathToKubeConfig $adminUser@$ip:/var/lib/jenkins/config
-    # ssh -o "StrictHostKeyChecking no" $adminUser@$ip sudo chmod 777 /var/lib/jenkins/config
-
-    # Get Jenkins Unlock Key
-    url="http://$ip:8080"
-    echo "Open a browser to $url"
-    echo "Enter the following to Unlock Jenkins:"
-    ssh -o "StrictHostKeyChecking no" $adminUser@$ip sudo "cat /var/lib/jenkins/secrets/initialAdminPassword"
-
-# else
-#     echo "Kubernetes configuration / authentication file not found. Run az aks get-credentials to download this file."
-# fi
+# Print Jenkins unlock URL and key
+echo "Jenkins is installed. Open a browser to http://$ip:8080"
+echo "Enter the following to unlock Jenkins:"
+ssh -o "StrictHostKeyChecking no" $ADMIN_USER@$ip sudo "cat /var/lib/jenkins/secrets/initialAdminPassword"

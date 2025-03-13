@@ -1,13 +1,37 @@
 #!/bin/bash
 
+export virtualMachine=prod-jenkins-vm
+export resourceGroup=nbaksclust-rg
 # Jenkins
-wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
-sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
-sudo add-apt-repository ppa:webupd8team/java -y
+
+# Open port 80 to allow web traffic to host.
+az vm open-port --port 80 --resource-group $resourceGroup --name $virtualMachine  --priority 101
+
+# Open port 22 to allow ssh traffic to host.
+az vm open-port --port 22 --resource-group $resourceGroup --name $virtualMachine --priority 102
+
+# Open port 8080 to allow web traffic to host.
+az vm open-port --port 8080 --resource-group $resourceGroup --name $virtualMachine --priority 103
+
+sudo apt update
+
+sudo apt install -y openjdk-17-jre
 sudo apt-get update
-echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-sudo apt-get install oracle-java8-installer -y
-sudo apt-get install jenkins -y
+jenkins_key=$(wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key)
+echo "$jenkins_key" | sudo apt-key add -
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $jenkins_key
+sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo ufw allow 8080
+sudo ufw allow OpenSSH
+sudo ufw allow 22/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 8080/tcp
+sudo apt-get install -y jenkins
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+sudo systemctl enable jenkins
+sudo ufw enable -y
 
 # Docker
 sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
