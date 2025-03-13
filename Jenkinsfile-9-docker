@@ -16,9 +16,125 @@ pipeline {
                     args '--user root'
                 }
             }
+            environment {
+                ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+            }
             steps {
                 sh 'az --version'
             }
+        }
+        stage('Installation of tools') {
+            agent {
+                docker {
+                    image 'vakem/kubepodtemplate:latest'
+                    args '--user root'
+                }
+            }
+            steps {
+                sh 'az --version'
+            }
+        }
+
+        stage('Install Terraform & Azure CLI if not installed') {
+            steps {
+                container('docker') {
+                    script {
+                        // Check if terraform is installed
+                        if (!sh(script: 'command -v terraform', returnStatus: true)) {
+                            echo "Terraform not found. Installing..."
+                            sh 'apk add --no-cache terraform'
+                        } else {
+                            echo "Terraform is already installed."
+                        }
+                    }
+                }
+
+                container('docker') {
+                    script {
+                        // Check if Azure CLI is installed
+                        if (!sh(script: 'command -v az', returnStatus: true)) {
+                            echo "Azure CLI not found. Installing..."
+                            sh '''
+                            apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
+                            python3 -m pip install --upgrade pip setuptools wheel
+                            pip install azure-cli
+                            '''
+                        } else {
+                            echo "Azure CLI is already installed."
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Azure Login') {
+            steps {
+                container('docker') {
+                    script {
+                        withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
+                            sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                            az account set --subscription $ARM_SUBSCRIPTION_ID
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                container('docker') {
+                    sh '''
+                    cd ./05-learning
+                    terraform init
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                container('docker') {
+                    script {
+                        withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
+                            sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                            az account show
+                            '''
+                        }
+                    }
+                    sh '''
+                    cd ./05-learning
+                    terraform plan
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                container('docker') {
+                    sh '''
+                    cd ./05-learning
+                    terraform apply -auto-approve
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            container('docker') {
+                sh 'az logout'
+            }
+        }
+        success {
+            echo 'Terraform deployment completed successfully!'
+        }
+        failure {
+            echo 'Terraform deployment failed!'
         }
     }
 }

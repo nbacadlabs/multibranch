@@ -19,6 +19,9 @@
     // }
 pipeline {
     agent none
+    environment {
+        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+    }
     stages {
         stage('Checkout Code') {
             steps {
@@ -32,9 +35,6 @@ pipeline {
                     image 'vakem/kubepodtemplate:latest'
                     args '--user root'
                 }
-            }
-            environment {
-                ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
             }
             steps {
                 sh 'az --version'
