@@ -1,6 +1,7 @@
 pipeline {
     agent {
         docker{ image 'vakem/kubepodtemplate'}
+        label 'my-label'
     }
 
     stages {
