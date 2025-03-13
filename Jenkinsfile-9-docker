@@ -11,10 +11,10 @@ pipeline {
         }
         stage('Front-end') {
             agent {
-                docker { image 'node:16-alpine'}
+                docker { image ' vakem/kubepodtemplate:latest'}
             }
             steps {
-                sh 'node --version'
+                sh 'az --version'
             }
         }
     }
