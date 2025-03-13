@@ -36,10 +36,12 @@ pipeline {
                         cargo 
                         
                         # Install Terraform
-                        curl -fsSL -o terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
-                        unzip terraform.zip && \
-                        mv terraform /usr/local/bin/ && \
-                        chmod +x /usr/local/bin/terraform && \
+                        #verify terraform version: https://www.terraform.io/downloads.html
+                        apt-get install unzip
+                        wget https://releases.hashicorp.com/terraform/1.11.2/terraform_1.11.2_linux_amd64.zip
+                        unzip terraform_1.11.2_linux_amd64.zip
+                        mv terraform /usr/local/bin/
+                        terraform --version
                         # Install kubectl
                         curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
                         chmod +x kubectl && \
