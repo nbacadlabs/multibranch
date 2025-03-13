@@ -11,7 +11,7 @@ pipeline {
         }
         stage('Front-end') {
             agent {
-                docker { image ' vakem/kubepodtemplate:latest'}
+                docker { image ' vakem/kubepodtemplate'}
             }
             steps {
                 sh 'az --version'
