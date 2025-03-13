@@ -9,68 +9,6 @@ pipeline {
                 sh 'mvn --version'
             }
         }
-        // stage('Front-end') {
-        //     agent {
-        //         docker { 
-        //             image 'node:16-alpine'
-        //             args '--user root'
-        //             }
-                
-        //     }
-        //     steps {
-        //         sh 'node --version'
-        //         sh '''
-        //             apk update && \
-        //             apk add --no-cache \
-        //                 curl \
-        //                 bash \
-        //                 jq \
-        //                 sudo \
-        //                 wget \
-        //                 unzip \
-        //                 py3-pip \
-        //                 python3-dev \
-        //                 gcc \
-        //                 musl-dev \
-        //                 libffi-dev \
-        //                 openssl-dev \
-        //                 cargo 
-                        
-        //                 # Install Terraform
-        //                 apk update
-        //                 apk add --no-cache unzip wget
-
-        //                 # Define Terraform version
-        //                 TERRAFORM_VERSION="1.11.2"
-
-        //                 # Download Terraform
-        //                 wget "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
-
-        //                 # Unzip Terraform package
-        //                 unzip "terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
-
-        //                 # Move the terraform binary to /usr/local/bin for global access
-        //                 mv terraform /usr/local/bin/
-
-        //                 # Verify the Terraform installation
-        //                 terraform --version
-        //                 # Install kubectl
-        //                 curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
-        //                 chmod +x kubectl && \
-        //                 mv kubectl /usr/local/bin/ && \
-        //                 # Install Rust and Cargo
-        //                 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
-        //                 # Ensure Cargo is in PATH
-        //                 export PATH="$HOME/.cargo/bin:$PATH" && \
-        //                 # Install Azure CLI
-        //                 python3 -m pip install --upgrade pip setuptools wheel && \
-        //                 pip install azure-cli && \
-        //                 # Clean up the APK cache to reduce image size
-        //                 apk del gcc musl-dev libffi-dev openssl-dev cargo python3-dev && \
-        //                 rm -rf /var/cache/apk/* terraform.zip
-        //         '''
-        //     }
-        // }
         stage('Back-others') {
             agent {
                 docker { 
