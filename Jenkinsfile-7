@@ -1,88 +1,32 @@
-
-    // agent {
-    //     kubernetes {
-    //         yaml '''
-    //         apiVersion: v1
-    //         kind: Pod
-    //         spec:
-    //           containers:
-    //           - name: terraform
-    //             image: hashicorp/terraform:latest
-    //             command: [ "sleep" ]
-    //             args: [ "infinity" ]
-    //           - name: azure-cli
-    //             image: mcr.microsoft.com/azure-cli
-    //             command: [ "sleep" ]
-    //             args: [ "infinity" ]
-    //         '''
-    //     }
-    // }
 pipeline {
-    agent none
+    agent none  // No agent for the pipeline as we're using docker in each stage
+
     environment {
-        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+        // These variables are placeholders; they will be replaced with your Jenkins credentials
+        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID') // Replace with your Subscription ID
     }
+
     stages {
-        stage('Checkout Code') {
+        stage('Start Docker Container') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Installation of tools') {
-            agent {
-                docker {
-                    image 'vakem/kubepodtemplate:latest'
-                    args '--user root'
-                }
-            }
-            steps {
-                sh 'az --version'
-            }
-        }
-
-        stage('Install Terraform & Azure CLI if not installed') {
-            steps {
-                container('docker') {
-                    script {
-                        // Check if terraform is installed
-                        if (!sh(script: 'command -v terraform', returnStatus: true)) {
-                            echo "Terraform not found. Installing..."
-                            sh 'apk add --no-cache terraform'
-                        } else {
-                            echo "Terraform is already installed."
-                        }
-                    }
-                }
-
-                container('docker') {
-                    script {
-                        // Check if Azure CLI is installed
-                        if (!sh(script: 'command -v az', returnStatus: true)) {
-                            echo "Azure CLI not found. Installing..."
-                            sh '''
-                            apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-                            python3 -m pip install --upgrade pip setuptools wheel
-                            pip install azure-cli
-                            '''
-                        } else {
-                            echo "Azure CLI is already installed."
-                        }
-                    }
+                script {
+                    // Start the Docker container and give it a name
+                    sh 'docker run --name my-custom-container -d vakem/kubepodtemplate:latest sleep infinity'
                 }
             }
         }
 
         stage('Azure Login') {
             steps {
-                container('docker') {
-                    script {
-                        withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account set --subscription $ARM_SUBSCRIPTION_ID
-                            '''
-                        }
+                script {
+                    // Use Jenkins 'withCredentials' to inject Azure Service Principal credentials
+                    withCredentials([usernamePassword(credentialsId: 'AZURE_SP_CREDENTIALS', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_CLIENT_SECRET')]) {
+                        // Execute the Azure login inside the container
+                        sh '''
+                        docker exec my-custom-container az login --service-principal \
+                        -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                        docker exec my-custom-container az account set --subscription $ARM_SUBSCRIPTION_ID
+                        '''
                     }
                 }
             }
@@ -90,41 +34,37 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                container('docker') {
-                    sh '''
-                    cd ./05-learning
-                    terraform init
-                    '''
+                script {
+                    // Run terraform init inside the container
+                    sh 'docker exec my-custom-container terraform init ./05-learning'
                 }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                container('docker') {
-                    script {
-                        withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account show
-                            '''
-                        }
-                    }
-                    sh '''
-                    cd ./05-learning
-                    terraform plan
-                    '''
+                script {
+                    // Run terraform plan inside the container
+                    sh 'docker exec my-custom-container terraform plan ./05-learning'
                 }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                container('docker') {
-                    sh '''
-                    cd ./05-learning
-                    terraform apply -auto-approve
-                    '''
+                script {
+                    // Run terraform apply inside the container
+                    sh 'docker exec my-custom-container terraform apply -auto-approve ./05-learning'
+                }
+            }
+        }
+
+        stage('Stop Docker Container') {
+            steps {
+                script {
+                    // Stop and remove the Docker container after all stages are complete
+                    sh 'docker stop my-custom-container'
+                    sh 'docker rm my-custom-container'
                 }
             }
         }
@@ -132,8 +72,9 @@ pipeline {
 
     post {
         always {
-            container('docker') {
-                sh 'az logout'
+            script {
+                // Clean up and logout from Azure CLI inside the container
+                sh 'docker exec my-custom-container az logout'
             }
         }
         success {
