@@ -20,22 +20,30 @@ sudo apt update
 
 # Install OpenJDK 17
 sudo apt update
-sudo apt install openjdk-17-jdk
+sudo apt install -y openjdk-17-jdk
 
-# jenkins_key=$(wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key)
-# echo "$jenkins_key" | sudo apt-key add -
-# sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $jenkins_key
-# sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+    https://pkg.jenkins.io/debian/jenkins.io-2023.key
+
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+    https://pkg.jenkins.io/debian binary/ | sudo tee \
+    /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install fontconfig openjdk-17-jre
+sudo apt-get install -y jenkins
 # sudo apt-get update
-# sudo ufw allow 8080
+# sudo apt-get install jenkins
 # sudo ufw allow OpenSSH
 # sudo ufw allow 22/tcp
 # sudo ufw allow 443/tcp
 # sudo ufw allow 80/tcp
 # sudo ufw allow 8080/tcp
-# sudo apt-get install -y jenkins
-# sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-# sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+sudo systemctl status jenkins
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
 # sudo ufw enable -y
 
 # Docker
