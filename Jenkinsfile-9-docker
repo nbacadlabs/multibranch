@@ -5,6 +5,7 @@ pipeline {
         stage('Back-end') {
             agent {
                 docker { image 'maven:3.8.1-adoptopenjdk-11'}
+                label 'dockerlabel'
             }
             steps {
                 sh 'mvn --version'
@@ -13,6 +14,7 @@ pipeline {
         stage('Front-end') {
             agent {
                 docker { image 'node:16-alpine'}
+                label 'dockerlabel'
             }
             steps {
                 sh 'node --version'
