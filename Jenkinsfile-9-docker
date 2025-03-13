@@ -35,10 +35,10 @@ pipeline {
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
         }
-        stage('Apply / Destroy') {
+        stage('Apply Destroy') {
             steps {
                 script {
-                    cd ./05-learning
+                
                     if (params.action == 'apply') {
                         if (!params.autoApprove) {
                             def plan = readFile 'tfplan.txt'
@@ -48,6 +48,7 @@ pipeline {
 
                         sh 'terraform ${action} -input=false tfplan'
                     } else if (params.action == 'destroy') {
+                        cd ./05-learning
                         sh 'terraform ${action} --auto-approve'
                     } else {
                         error "Invalid action selected. Please choose either 'apply' or 'destroy'."
