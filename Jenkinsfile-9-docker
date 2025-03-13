@@ -1,124 +1,59 @@
 pipeline {
-    agent none
+    agent none  // no agent for the pipeline as we are using docker commands in stages
+
+    environment {
+        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+    }
+
     stages {
-        stage('Back-end') {
-            agent {
-                docker { image 'maven:3.8.1-adoptopenjdk-11'}
-            }
+        stage('Start Docker Container') {
             steps {
-                sh 'mvn --version'
-            }
-        }
-        stage('Back-others') {
-            agent {
-                docker { 
-                    image 'vakem/kubepodtemplate:latest'
-                    args '--user root'
-                }
-            }
-            environment {
-                ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
-            }
-            steps {
-                sh 'az --version'
-            }
-        }
-        stage('Installation of tools') {
-            agent {
-                docker {
-                    image 'vakem/kubepodtemplate:latest'
-                    args '--user root'
-                }
-            }
-            steps {
-                sh 'az --version'
-            }
-        }
-
-        stage('Install Terraform & Azure CLI if not installed') {
-            steps {
-                container('docker') {
-                    script {
-                        // Check if terraform is installed
-                        if (!sh(script: 'command -v terraform', returnStatus: true)) {
-                            echo "Terraform not found. Installing..."
-                            sh 'apk add --no-cache terraform'
-                        } else {
-                            echo "Terraform is already installed."
-                        }
-                    }
-                }
-
-                container('docker') {
-                    script {
-                        // Check if Azure CLI is installed
-                        if (!sh(script: 'command -v az', returnStatus: true)) {
-                            echo "Azure CLI not found. Installing..."
-                            sh '''
-                            apk add --no-cache curl bash jq sudo py3-pip python3-dev gcc musl-dev libffi-dev
-                            python3 -m pip install --upgrade pip setuptools wheel
-                            pip install azure-cli
-                            '''
-                        } else {
-                            echo "Azure CLI is already installed."
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Azure Login') {
-            steps {
-                container('docker') {
-                    script {
-                        withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account set --subscription $ARM_SUBSCRIPTION_ID
-                            '''
-                        }
-                    }
+                // Start the Docker container and give it a name
+                script {
+                    sh 'docker run --name terraformconn -d vakem/kubepodtemplate:latest sleep infinity'
                 }
             }
         }
 
         stage('Terraform Init') {
             steps {
-                container('docker') {
-                    sh '''
-                    cd ./05-learning
-                    terraform init
-                    '''
+                script {
+                    // Run terraform init inside the container
+                    sh 'docker exec terraformconn terraform init ./05-learning'
                 }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                container('docker') {
-                    script {
-                        withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
-                            sh '''
-                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                            az account show
-                            '''
-                        }
-                    }
-                    sh '''
-                    cd ./05-learning
-                    terraform plan
-                    '''
+                script {
+                    // Run terraform plan inside the container
+                    sh 'docker exec terraformconn terraform plan ./05-learning'
                 }
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                container('docker') {
-                    sh '''
-                    cd ./05-learning
-                    terraform apply -auto-approve
-                    '''
+                script {
+                    withCredentials([azureServicePrincipal('AZURE_SUBSCRIPTION_ID')]) {
+                        sh '''
+                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                        az account set --subscription $ARM_SUBSCRIPTION_ID
+                        '''
+                    }
+                    // Run terraform apply inside the container
+                    sh 'docker exec terraformconn terraform apply -auto-approve ./05-learning'
+                }
+            }
+        }
+
+        stage('Stop Docker Container') {
+            steps {
+                // Stop and remove the Docker container after all stages are complete
+                script {
+                    sh 'docker stop terraformconn'
+                    sh 'docker rm terraformconn'
                 }
             }
         }
@@ -126,8 +61,9 @@ pipeline {
 
     post {
         always {
-            container('docker') {
-                sh 'az logout'
+            script {
+                // Clean up and logout from Azure CLI
+                sh 'docker exec terraformconn az logout'
             }
         }
         success {
