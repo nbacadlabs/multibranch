@@ -32,13 +32,6 @@ echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
 sudo apt-get update
 sudo apt-get install fontconfig openjdk-17-jre
 sudo apt-get install -y jenkins
-# sudo apt-get update
-# sudo apt-get install jenkins
-# sudo ufw allow OpenSSH
-# sudo ufw allow 22/tcp
-# sudo ufw allow 443/tcp
-# sudo ufw allow 80/tcp
-# sudo ufw allow 8080/tcp
 sudo systemctl start jenkins
 sudo systemctl enable jenkins
 sudo systemctl status jenkins
@@ -60,11 +53,59 @@ sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
 sudo apt-get install apt-transport-https
 sudo apt-get update && sudo apt-get install azure-cli
 
+#jq
+sudo apt install jq -y
+
+#Azure CLI
+sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+
+curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+
+AZ_DIST=$(lsb_release -cs)
+echo "Types: deb
+URIs: https://packages.microsoft.com/repos/azure-cli/
+Suites: ${AZ_DIST}
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-by: /etc/apt/keyrings/microsoft.gpg" | sudo tee /etc/apt/sources.list.d/azure-cli.sources
+
+sudo apt-get update
+sudo apt-get install azure-cli
+
+#Terraform
+#verify terraform version: https://www.terraform.io/downloads.html
+sudo apt-get install unzip
+wget https://releases.hashicorp.com/terraform/1.11.2/terraform_1.11.2_linux_amd64.zip
+unzip terraform_1.11.2_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+terraform --version
+
 # Kubectl
 cd /tmp/
 sudo curl -kLO https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
+
+
+#Instaall PostgreSQL
+sudo apt update
+sudo apt upgrade -y
+sudo apt install curl ca-certificates
+sudo install -d /usr/share/postgresql-common/pgdg
+sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+sudo apt update
+sudo apt install postgresql-15 -y
+sudo -i -u postgres
+createuser sonar
+createdb sonar -O sonar
+psql
+ALTER USER sonar WITH ENCRYPTED PASSWORD 'your_password';
+\q
+exit
 
 # Configure access
 usermod -aG docker jenkins

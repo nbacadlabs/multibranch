@@ -1,0 +1,13 @@
+pipeline {
+    agent {
+        docker{ image 'vakem/kubepodtemplate:latest'}
+    }
+
+    stages {
+        stage('Test') {
+            steps {
+                sh 'node --version'
+            }
+        }
+    }
+}
