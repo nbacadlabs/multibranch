@@ -12,13 +12,13 @@ pipeline {
         stage('Front-end') {
             agent {
                 docker { image 'node:16-alpine'}
+                args '--user root'
             }
             steps {
                 sh 'node --version'
                 sh '''
-                    apk add --no-cache sudo
                     apk update && \
-                    sudo apk add --no-cache \
+                    apk add --no-cache \
                         curl \
                         bash \
                         jq \
@@ -49,8 +49,8 @@ pipeline {
                         python3 -m pip install --upgrade pip setuptools wheel && \
                         pip install azure-cli && \
                         # Clean up the APK cache to reduce image size
-                        sudo apk del gcc musl-dev libffi-dev openssl-dev cargo python3-dev && \
-                        sudo rm -rf /var/cache/apk/* terraform.zip
+                        apk del gcc musl-dev libffi-dev openssl-dev cargo python3-dev && \
+                        rm -rf /var/cache/apk/* terraform.zip
                 '''
             }
         }
