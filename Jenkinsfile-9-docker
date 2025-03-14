@@ -1,12 +1,14 @@
 pipeline {
   agent any
-
+  options {
+    buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
+  }
 
   environment {
     BRANCH = 'main'
     REPO = 'https://github.com/nbacadlabs/multibranch.git'
 
-
+    // All data here
     // ARM_ACCESS_KEY = credentials('ARM_ACCESS_KEY')
     // ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
     // ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
@@ -29,6 +31,9 @@ pipeline {
 
 
     stage('Terraform - init') {
+      when {
+        branch "dev-*"
+      }
       steps {
         sh '''
             cd ./05-learning
@@ -39,6 +44,9 @@ pipeline {
 
 
     stage('Terraform - validate') {
+        when {
+            branch "dev-*"
+        }
         steps {
             sh '''
                 cd ./05-learning
@@ -49,6 +57,9 @@ pipeline {
 
 
     stage('Terraform - plan') {
+        when {
+            branch "dev-*"
+        }
         steps {
           sh '''
             cd ./05-learning
@@ -59,6 +70,9 @@ pipeline {
 
 
     stage('Terraform - apply') {
+      when {
+        branch "PR-*"
+      }
       steps {
         script {
             withCredentials([azureServicePrincipal('TERRAFORM_SP_ID')]) {
