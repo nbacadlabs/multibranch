@@ -71,7 +71,6 @@ pipeline {
 
 
     stage('Terraform - apply') {
-
     when {
         branch "PR-*"
       }
