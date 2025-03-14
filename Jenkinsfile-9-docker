@@ -8,7 +8,7 @@ pipeline {
     BRANCH = 'main'
     REPO = 'https://github.com/nbacadlabs/multibranch.git'
 
-    // All data here
+
     // ARM_ACCESS_KEY = credentials('ARM_ACCESS_KEY')
     // ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
     // ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
@@ -57,9 +57,9 @@ pipeline {
 
 
     stage('Terraform - plan') {
-        when {
+     when {
             branch "dev-*"
-        }
+      }
         steps {
           sh '''
             cd ./05-learning
@@ -70,7 +70,7 @@ pipeline {
 
 
     stage('Terraform - apply') {
-      when {
+    when {
         branch "PR-*"
       }
       steps {
