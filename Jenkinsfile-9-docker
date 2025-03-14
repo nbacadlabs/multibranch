@@ -8,7 +8,7 @@ pipeline {
     BRANCH = 'main'
     REPO = 'https://github.com/nbacadlabs/multibranch.git'
 
-
+    // All data here
     // ARM_ACCESS_KEY = credentials('ARM_ACCESS_KEY')
     // ARM_CLIENT_ID = credentials('AZURE_CLIENT_ID')
     // ARM_CLIENT_SECRET = credentials('AZURE_CLIENT_SECRET')
@@ -57,6 +57,7 @@ pipeline {
 
 
     stage('Terraform - plan') {
+
      when {
             branch "dev-*"
       }
@@ -70,6 +71,7 @@ pipeline {
 
 
     stage('Terraform - apply') {
+
     when {
         branch "PR-*"
       }
@@ -84,6 +86,7 @@ pipeline {
         }
           sh '''
             cd ./05-learning
+            terraform init
             terraform destroy -auto-approve
           '''
       }
@@ -98,4 +101,4 @@ pipeline {
       cleanWs()
     }
   }
-} // pipelin
+} // pipeline another
