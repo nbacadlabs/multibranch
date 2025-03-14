@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "nbtest-rg" {
-  name     = var.resource_group_name
+  name     = "nbtest-rg"
   location = var.location
 }
 
