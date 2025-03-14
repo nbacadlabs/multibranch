@@ -57,9 +57,10 @@ pipeline {
 
 
     stage('Terraform - plan') {
-        when {
+
+     when {
             branch "dev-*"
-        }
+      }
         steps {
           sh '''
             cd ./05-learning
@@ -70,7 +71,8 @@ pipeline {
 
 
     stage('Terraform - apply') {
-      when {
+
+    when {
         branch "PR-*"
       }
       steps {
