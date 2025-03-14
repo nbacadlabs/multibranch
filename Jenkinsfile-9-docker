@@ -84,7 +84,7 @@ pipeline {
         }
           sh '''
             cd ./05-learning
-            terraform apply -auto-approve
+            terraform destroy -auto-approve
           '''
       }
     }
