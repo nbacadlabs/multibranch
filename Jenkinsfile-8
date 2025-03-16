@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'DEPLOY_ENV', choices: ['jenkins', 'staging', 'production'], description: 'Select the environment to deploy to')
+    }
+
+    environment {
+        APP_NAME = 'myapp'
+        KUBERNETES_NAMESPACE = 'jenkins'  // Set default namespace, can be overridden per environment
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    echo "Building the application"
+                    // Your build commands here
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    def kubeContext = 'minikube'
+                    def deployServer = 'https://192.168.49.2:8443'
+                    if (params.DEPLOY_ENV == 'Jenkins') {
+                        kubeContext = 'minikube'  // Context for the dev Kubernetes cluster
+                        deployServer = 'https://192.168.49.2:8443'
+                    } else if (params.DEPLOY_ENV == 'staging') {
+                        kubeContext = 'minikube'  // Context for the staging Kubernetes cluster
+                        deployServer = 'https://192.168.49.2:8443'
+                    } else if (params.DEPLOY_ENV == 'production') {
+                        kubeContext = 'minikube'  // Context for the production Kubernetes cluster
+                        deployServer = 'https://192.168.49.2:8443'
+                    }
+
+                    // Set the kubecontext for the selected environment
+                    echo "Setting kubecontext to $kubeContext"
+                    sh """
+                        kubectl config use-context $kubeContext
+                    """
+
+                   
+                }
+            }
+        }
+    }
+}
