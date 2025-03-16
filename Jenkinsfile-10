@@ -9,11 +9,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'my-kubeconfig-id', variable: 'KUBECONFIG_FILE')]) {
-                        sh 'export KUBECONFIG=$KUBECONFIG_FILE'
-                        // Deploy the pod to Kubernetes
-                        sh 'kubectl run test-pod --image=nginx --restart=Never --namespace=default'
-                    }
+                   'sh kubectl get pods'
                 }
             }
         }
