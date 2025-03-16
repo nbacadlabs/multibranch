@@ -46,6 +46,7 @@ pipeline {
                             kubectl config use-context $kubeContext
                             kubectl get pods --namespace=jenkins  // Example kubectl command
                         """
+                    }
 
                    
                 }
