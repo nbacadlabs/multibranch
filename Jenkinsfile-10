@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        KUBECONFIG = '/home/nbadmin/.kube/config' // or the environment variable for your kubeconfig location
+        KUBECONFIG = '~/.kube/config' // or the environment variable for your kubeconfig location
     }
     stages {
         stage('Deploy') {
