@@ -86,15 +86,21 @@ pipeline {
                     az --version
                     '''
                      script {
-                        // Load kubeconfig from Jenkins credentials store
-                        withCredentials([file(credentialsId: 'Jenkins-sa-token', variable: 'KUBECONFIG_FILE')]) {
-                            // Export KUBECONFIG environment variable
-                            sh 'export KUBECONFIG=$KUBECONFIG_FILE'
-                            
-                            // Run kubectl command to deploy the pod
-                            sh 'bubectl get pods'
-                        }
-                 }
+                    // Retrieve the token stored in Jenkins credentials
+                    withCredentials([string(credentialsId: 'Jenkins-sa-token', variable: 'K8S_TOKEN')]) {
+                        
+                        // Set the Kubernetes configuration using the token
+                        sh """
+                            kubectl config set-credentials jenkins-user --token=\$K8S_TOKEN
+                            kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --certificate-authority=/home/jenkins/.minikube/ca.crt
+                            kubectl config set-context minikube --cluster=minikube --user=jenkins-user --namespace=default
+                            kubectl config use-context minikube
+                        """
+                        
+                        // Now you can run your kubectl commands
+                        sh 'kubectl get pods'
+                    }
+                }
                 }
             }
         }
