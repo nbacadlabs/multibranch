@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        KUBECONFIG = '~/.kube/config' // or the environment variable for your kubeconfig location
+        KUBECONFIG = '/home/jenkins/.kube/config' // or the environment variable for your kubeconfig location
     }
     stages {
         stage('Deploy') {
