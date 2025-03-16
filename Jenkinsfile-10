@@ -1,55 +1,13 @@
 pipeline {
     agent any
-
-    parameters {
-        choice(name: 'DEPLOY_ENV', choices: ['jenkins', 'staging', 'production'], description: 'Select the environment to deploy to')
-    }
-
     environment {
-        APP_NAME = 'myapp'
-        KUBERNETES_NAMESPACE = 'jenkins'  // Set default namespace, can be overridden per environment
+        KUBECONFIG = '/home/nbadmin/.kube/config' // or the environment variable for your kubeconfig location
     }
-
     stages {
-        stage('Build') {
+        stage('Deploy') {
             steps {
                 script {
-                    echo "Building the application"
-                    // Your build commands here
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    def kubeContext = ''
-                    // def deployServer = 'https://192.168.49.2:8443'
-                    if (params.DEPLOY_ENV == 'jenkins') {
-                        // deployServer = 'https://192.168.49.2:8443'
-                         kubeContext = 'minikube'
-                    } else if (params.DEPLOY_ENV == 'staging') {
-                        // deployServer = 'https://192.168.49.2:8443'
-                        kubeContext = 'minikube'
-                    } else if (params.DEPLOY_ENV == 'production') {
-                        // deployServer = 'https://192.168.49.2:8443'
-                      kubeContext = 'minikube'
-                    }
-
-                    // echo "Setting kubecontext to $kubeContext"
-                    // sh 'kubectl config use-context *'
-
-                    // Use the Kubernetes token securely with `withCredentials`
-                    withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
-                        // Export the token as part of the kubeconfig file
-                        sh """
-                            kubectl config set-credentials jenkins-user --token=$K8_TOKEN
-                            kubectl config use-context minikube
-                            kubectl get pods -n jenkins  // Example kubectl command
-                        """
-                    }
-
-                   
+                    sh 'kubectl get pods' // Example kubectl command
                 }
             }
         }
