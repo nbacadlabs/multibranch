@@ -26,13 +26,10 @@ pipeline {
                     // def kubeContext = '*'
                     def deployServer = 'https://192.168.49.2:8443'
                     if (params.DEPLOY_ENV == 'jenkins') {
-                        kubeContext = '*'  // Context for the dev Kubernetes cluster
                         deployServer = 'https://192.168.49.2:8443'
                     } else if (params.DEPLOY_ENV == 'staging') {
-                        kubeContext = '*'  // Context for the staging Kubernetes cluster
                         deployServer = 'https://192.168.49.2:8443'
                     } else if (params.DEPLOY_ENV == 'production') {
-                        kubeContext = '*'  // Context for the production Kubernetes cluster
                         deployServer = 'https://192.168.49.2:8443'
                     }
 
@@ -43,7 +40,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
                         // Export the token as part of the kubeconfig file
                         sh """
-                            kubectl get pods -n jenkins  // Example kubectl command
+                            kubectl get pods  // Example kubectl command
                         """
                     }
 
