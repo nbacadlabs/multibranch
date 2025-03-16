@@ -37,12 +37,13 @@ pipeline {
                     // sh 'kubectl config use-context *'
 
                     // Use the Kubernetes token securely with `withCredentials`
-                    withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
-                        // Export the token as part of the kubeconfig file
-                        sh """
-                            kubectl get pods  // Example kubectl command
-                        """
-                    }
+                    // withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
+                    //     // Export the token as part of the kubeconfig file
+                    //     sh """
+                    //         kubectl get pods  // Example kubectl command
+                    //     """
+                    // }
+                    sh 'kubectl get pods -n jenkins'
 
                    
                 }
