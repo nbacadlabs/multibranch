@@ -23,14 +23,17 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    def kubeContext = '*'
-                    def deployServer = 'https://192.168.49.2:8443'
+                    def kubeContext = ''
+                    // def deployServer = 'https://192.168.49.2:8443'
                     if (params.DEPLOY_ENV == 'jenkins') {
-                        deployServer = 'https://192.168.49.2:8443'
+                        // deployServer = 'https://192.168.49.2:8443'
+                         kubeContext = 'minikube'
                     } else if (params.DEPLOY_ENV == 'staging') {
-                        deployServer = 'https://192.168.49.2:8443'
+                        // deployServer = 'https://192.168.49.2:8443'
+                        kubeContext = 'minikube'
                     } else if (params.DEPLOY_ENV == 'production') {
-                        deployServer = 'https://192.168.49.2:8443'
+                        // deployServer = 'https://192.168.49.2:8443'
+                      kubeContext = 'minikube'
                     }
 
                     // echo "Setting kubecontext to $kubeContext"
