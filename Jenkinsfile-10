@@ -1,13 +1,19 @@
 pipeline {
     agent any
+    
     environment {
-        KUBECONFIG = '/home/jenkins/.kube/config' // or the environment variable for your kubeconfig location
+        K8S_CONFIG = '/home/jenkins/.kube/config'  // Path to kubeconfig
     }
+
     stages {
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh 'kubectl get pods' // Example kubectl command test
+                    withCredentials([file(credentialsId: 'my-kubeconfig-id', variable: 'KUBECONFIG_FILE')]) {
+                        sh 'export KUBECONFIG=$KUBECONFIG_FILE'
+                        // Deploy the pod to Kubernetes
+                        sh 'kubectl run test-pod --image=nginx --restart=Never --namespace=default'
+                    }
                 }
             }
         }
