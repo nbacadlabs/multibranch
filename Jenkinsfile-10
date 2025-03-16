@@ -43,7 +43,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
                         // Export the token as part of the kubeconfig file
                         sh """
-                            kubectl get pods --namespace=jenkins  // Example kubectl command
+                            kubectl get pods -n jenkins  // Example kubectl command
                         """
                     }
 
