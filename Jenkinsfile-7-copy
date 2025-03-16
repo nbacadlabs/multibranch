@@ -92,7 +92,7 @@ pipeline {
                         // Set the Kubernetes configuration using the token
                         sh """
                             kubectl config set-credentials jenkins-user --token=\$K8S_TOKEN
-                            kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --certificate-authority=/home/jenkins/.minikube/ca.crt
+                            kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --certificate-authority=/home/nbadmin/.minikube/ca.crt
                             kubectl config set-context minikube --cluster=minikube --user=jenkins-user --namespace=default
                             kubectl config use-context minikube
                         """
