@@ -19,7 +19,7 @@ pipeline {
     }
 
     environment {
-        // ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+         K8S_TOKEN = ''
     }
 
     stages {
@@ -85,31 +85,16 @@ pipeline {
                     sh '''
                     az --version
                     '''
-                    script {
-                    // Retrieve the token dynamically from the Jenkins service account
-                    // This retrieves the token using kubectl commands directly
-                    K8S_TOKEN = sh(script: '''
-                        kubectl describe secret $(kubectl describe serviceaccount jenkins --namespace=jenkins | grep Token | awk '{print $2}') --namespace=jenkins | grep 'token:' | awk '{print $2}'
-                    ''', returnStdout: true).trim()
-                    
-                    // Set Kubernetes configuration and run commands using the retrieved token
-                    sh """
-                        # Set the Kubernetes credentials using the dynamic token
-                        kubectl config set-credentials jenkins-user --token=\$K8S_TOKEN
-                        
-                        # Set the Kubernetes cluster (replace with your actual CA file location)
-                        kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --certificate-authority=/home/jenkins/.minikube/ca.crt
-                        
-                        # Set the context for Kubernetes to use the cluster and the user
-                        kubectl config set-context minikube --cluster=minikube --user=jenkins-user --namespace=default
-                        
-                        # Use the newly set context
-                        kubectl config use-context minikube
-                        
-                        # Deploy a test pod (nginx) to the Kubernetes cluster
-                        kubectl get pods
-                    """
-                }
+                     script {
+                        // Load kubeconfig from Jenkins credentials store
+                        withCredentials([file(credentialsId: 'Jenkins-sa-token', variable: 'KUBECONFIG_FILE')]) {
+                            // Export KUBECONFIG environment variable
+                            sh 'export KUBECONFIG=$KUBECONFIG_FILE'
+                            
+                            // Run kubectl command to deploy the pod
+                            sh 'bubectl get pods'
+                        }
+                 }
                 }
             }
         }
