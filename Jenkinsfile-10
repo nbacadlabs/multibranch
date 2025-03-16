@@ -8,7 +8,7 @@ pipeline {
             steps {
                 script {
                     sh 'sudo chmod 777 /home/nbadmin/.kube/config'
-                    sh 'kubectl get pods' // Example kubectl command
+                    sh 'kubectl get pods' // Example kubectl command test
                 }
             }
         }
