@@ -25,7 +25,7 @@ pipeline {
                 script {
                     def kubeContext = '*'
                     def deployServer = 'https://192.168.49.2:8443'
-                    if (params.DEPLOY_ENV == 'Jenkins') {
+                    if (params.DEPLOY_ENV == 'jenkins') {
                         kubeContext = '*'  // Context for the dev Kubernetes cluster
                         deployServer = 'https://192.168.49.2:8443'
                     } else if (params.DEPLOY_ENV == 'staging') {
