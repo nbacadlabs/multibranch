@@ -94,7 +94,6 @@ pipeline {
   //maximizing all test more
   }
 
-
   post {
     always {
       cleanWs()
