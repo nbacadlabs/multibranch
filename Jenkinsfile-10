@@ -23,7 +23,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // def kubeContext = '*'
+                    def kubeContext = '*'
                     def deployServer = 'https://192.168.49.2:8443'
                     if (params.DEPLOY_ENV == 'jenkins') {
                         deployServer = 'https://192.168.49.2:8443'
@@ -39,9 +39,13 @@ pipeline {
                     // Use the Kubernetes token securely with `withCredentials`
                     withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
                         // Export the token as part of the kubeconfig file
-                        sh "kubectl get pods -n jenkins"
+                        sh """
+                           kubectl config set-credentials jenkins-user --token=$K8S_TOKEN
+                            kubectl config use-context $kubeContext
+                            kubectl get pods -n jenkins  // Example kubectl command
+                        """
                     }
-                    
+
                    
                 }
             }
