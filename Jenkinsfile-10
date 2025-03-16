@@ -37,7 +37,7 @@ pipeline {
                     }
 
                     echo "Setting kubecontext to $kubeContext"
-                    sh 'kubectl config use-context minikube'
+                    sh 'kubectl config use-context *'
 
                     // Use the Kubernetes token securely with `withCredentials`
                     withCredentials([string(credentialsId: 'k8-token', variable: 'K8_TOKEN')]) {
