@@ -18,9 +18,9 @@ pipeline {
         }
     }
 
-    environment {
-        KUBECONFIG = '/home/nbadmin/.kube/config'  // Or the path to your kubeconfig file
-    }
+    // environment {
+    //     KUBECONFIG = '/home/nbadmin/.kube/config'  // Or the path to your kubeconfig file
+    // }
 
     stages {
         stage('Checkout Code') {
