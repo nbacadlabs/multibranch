@@ -18,9 +18,9 @@ pipeline {
         }
     }
 
-    // environment {
-    //      K8S_TOKEN = ''
-    // }
+    environment {
+        KUBECONFIG = '/home/jenkins/.kube/config'  // Or the path to your kubeconfig file
+    }
 
     stages {
         stage('Checkout Code') {
