@@ -1,19 +1,16 @@
 pipeline {
     agent {
         kubernetes {
-            yaml '''
+           yaml '''
             apiVersion: v1
             kind: Pod
             spec:
               containers:
-              - name: terraform
-                image: hashicorp/terraform:latest
-                command: [ "sleep" ]
-                args: [ "infinity" ]
-              - name: azure-cli
-                image: mcr.microsoft.com/azure-cli
-                command: [ "sleep" ]
-                args: [ "infinity" ]
+              - name: podtemplate
+                image: vakem/kubepodtemplate
+                command:
+                - cat
+                tty: true
             '''
         }
     }
@@ -33,29 +30,9 @@ pipeline {
 
         stage('Azure Login') {
             steps {
-                container('azure-cli') {
+                container('podtemplate') {
                      // Install Python if it is not available
-                    sh '''
-                    if ! command -v python3 &> /dev/null
-                    then
-                        echo "Python3 could not be found. Installing..."
-                        apk add --no-cache python3 py3-pip
-                    else
-                        echo "Python3 is already installed"
-                    fi
                     
-                    # Install pip manually if not available
-                    if ! python3 -m pip --version &> /dev/null
-                    then
-                        echo "pip could not be found. Installing..."
-                        python3 -m ensurepip --upgrade
-                    else
-                        echo "pip is already installed"
-                    fi
-                    
-                    # Upgrade pip, setuptools, and wheel
-                    python3 -m pip install --upgrade pip setuptools wheel
-                    '''
                     sh '''
                     az --version
                     '''
@@ -70,7 +47,7 @@ pipeline {
 
     post {
         always {
-            container('azure-cli') {
+            container('podtemplate') {
                 sh 'az logout'
             }
         }
