@@ -20,17 +20,17 @@ module "nsg" {
   tags = var.tags
 }
 
-module "vm" {
-  source              = "./modules/vm"
-  vm_name             = var.vm_name
-  resource_group_name = var.rg
-  location            = var.location
-  admin_username      = var.admin_username
-  ssh_key_path        = "~/.ssh/id_rsa.pub"
-  subnet_id           = module.vnet.subnet_ids["subnet1"]
-  nsg_name            = module.nsg.nsg_name
-  depends_on          = [ module.nsg ]
-}
+# module "vm" {
+#   source              = "./modules/vm"
+#   vm_name             = var.vm_name
+#   resource_group_name = var.rg
+#   location            = var.location
+#   admin_username      = var.admin_username
+#   ssh_key_path        = "~/.ssh/id_rsa.pub"
+#   subnet_id           = module.vnet.subnet_ids["subnet1"]
+#   nsg_name            = module.nsg.nsg_name
+#   depends_on          = [ module.nsg ]
+# }
 
 module "aks" {
   source              = "./modules/aks"
