@@ -85,10 +85,9 @@ pipeline {
                 '''
             }
         }
-           // cd ./04-infrastructure
           sh '''
-         
-            terraform plan -var-file=/04-infrasctructure/terraform.tfvars
+            cd ./04-infrastructure
+            terraform plan -var-file=terraform.tfvars
             '''
         }
     }
@@ -107,9 +106,9 @@ pipeline {
                 '''
             }
         }
-         // cd ./04-infrastructure
           sh '''
-            terraform apply -var-file=/04-infrasctructure/terraform.tfvars -auto-approve
+            cd ./04-infrastructure
+            terraform apply -var-file=terraform.tfvars -auto-approve
           '''
       }
     }
