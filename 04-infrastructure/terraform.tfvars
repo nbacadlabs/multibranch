@@ -31,7 +31,7 @@ nsg_name = "prod-nsg"
 # vm_name        = "prod-jenkins-vm"
 # admin_username = "azureuser"
 # ssh_key_path   = "~/.ssh/id_rsa.pub"
-# subnet_id      = "/subscriptions/12345678-1234-1234-1234-123456789abc/resourceGroups/tfstate-rg/providers/Microsoft.Network/virtualNetworks/prod-vnet/subnets/prod-subnet"
+subnet_id      = "/subscriptions/12345678-1234-1234-1234-123456789abc/resourceGroups/tfstate-rg/providers/Microsoft.Network/virtualNetworks/prod-vnet/subnets/prod-subnet"
 
 # Azure Kubernetes Service (AKS)
 aks_name        = "prod-aks"
