@@ -14,12 +14,19 @@ spec:
     spec:
       containers:
       - name: django-backend
-        image: vakem/nbbackend:latest  # Replace with your Docker image
+        image: vakem/nb-backend:latest  # Replace with your Docker image
         ports:
         - containerPort: 8000
-        envFrom:
-        - configMapRef:
-            name: app-config
+        env:
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: root-password
+            - name: MYSQL_USER
+              value: nbadmin
+            - name: MYSQL_DB
+              value: msdb
 ---
 apiVersion: v1
 kind: Service

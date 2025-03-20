@@ -1,0 +1,13 @@
+# mysql-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 3306  # MySQL default port
+      targetPort: 3306
+  clusterIP: None  # Headless service to allow direct access to pods (useful for stateful sets)

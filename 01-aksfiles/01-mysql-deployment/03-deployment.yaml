@@ -1,0 +1,42 @@
+# mysql-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: db
+spec:
+  replicas: 1  # Run a single instance (can increase for high availability)
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: vakem/nbdb:8.0  # You can use any version of MySQL, here 5.7 is used
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: root-password  # Secret key for the root password
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: root-user  # Secret key for the root password
+          - name: MYSQL_DATABASE
+            value: msdb  # The name of the database to create
+        ports:
+          - containerPort: 3306
+        volumeMounts:
+          - name: mysql-data
+            mountPath: /var/lib/mysql  # Path where MySQL stores data
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc

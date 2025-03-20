@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nbgl-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nbgl-frontend
+  template:
+    metadata:
+      labels:
+        app:  nbgl-frontend
+    spec:
+      containers:
+      - name:  nbgl-frontend
+        image: vakem/nbgl-frontend:latest  # Replace with your Docker image
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  nbgl-frontend-service
+spec:
+  selector:
+    app:  nbgl-frontend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+  type: LoadBalancer  # Exposes Vue app externally

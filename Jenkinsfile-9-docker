@@ -31,9 +31,9 @@ pipeline {
 
 
     stage('Terraform - init') {
-      when {
-        branch "dev-*"
-      }
+      // when {
+      //   branch "dev-*"
+      // }
       steps {
         sh '''
             cd ./05-learning
@@ -44,9 +44,9 @@ pipeline {
 
 
     stage('Terraform - validate') {
-        when {
-            branch "dev-*"
-        }
+        // when {
+        //     branch "dev-*"
+        // }
         steps {
             sh '''
                 cd ./05-learning
@@ -58,9 +58,9 @@ pipeline {
 
     stage('Terraform - plan') {
 
-     when {
-            branch "dev-*"
-      }
+    //  when {
+    //         branch "dev-*"
+    //   }
         steps {
           sh '''
             cd ./05-learning
@@ -71,9 +71,9 @@ pipeline {
 
 
     stage('Terraform - apply') {
-    when {
-        branch "PR-*"
-      }
+    // when {
+    //     branch "PR-*"
+    //   }
       steps {
         script {
             withCredentials([azureServicePrincipal('TERRAFORM_SP_ID')]) {
