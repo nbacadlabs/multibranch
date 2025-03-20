@@ -55,7 +55,13 @@ pipeline {
 
 
     stage('Terraform - plan') {
-        script {
+       
+        //slake
+    //  when {
+    //         branch "dev-*"
+    //   }
+        steps {
+           script {
             withCredentials([azureServicePrincipal('Azure_SP_ID')]) {
                 sh '''
                 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
@@ -63,11 +69,6 @@ pipeline {
                 '''
             }
         }
-        //slake
-    //  when {
-    //         branch "dev-*"
-    //   }
-        steps {
           sh '''
             cd ./04-infrastructure
             terraform plan
