@@ -43,7 +43,7 @@ pipeline {
         }
         sh '''
             cd ./04-infrastructure
-            terraform init -upgrade
+            terraform init init -migrate-state
         '''
       }
     }
@@ -108,7 +108,6 @@ pipeline {
         }
           sh '''
             cd ./04-infrastructure
-            terraform init
             terraform apply -auto-approve
           '''
       }
