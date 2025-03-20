@@ -43,7 +43,7 @@ pipeline {
         }
         sh '''
             cd ./04-infrastructure
-            terraform init -migrate-state
+            terraform init -reconfigure
         '''
       }
     }
