@@ -86,7 +86,7 @@ pipeline {
           sh '''
             cd ./04-infrastructure
             terraform init
-            terraform destroy -auto-approve
+            terraform apply -auto-approve
           '''
       }
     }
