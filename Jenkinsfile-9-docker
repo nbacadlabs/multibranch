@@ -87,7 +87,7 @@ pipeline {
         }
           sh '''
             cd ./04-infrastructure
-            terraform plan
+            terraform plan -var-file=/terraform.tfvars
             '''
         }
     }
