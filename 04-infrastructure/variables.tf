@@ -40,7 +40,7 @@ variable "location" {
 
 # variable "vm_name" { type = string }
 # variable "admin_username" { type = string }
-variable "ssh_key_path" { type = string }
+# variable "ssh_key_path" { type = string }
 variable "subnet_id" { type = string }
 variable "nsg_name" { type = string }
 variable "subnet_name" { type = string }
