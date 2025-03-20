@@ -36,7 +36,7 @@ pipeline {
       // }
       steps {
         sh '''
-            cd ./05-learning
+            cd ./04-infrastructure
             terraform init -upgrade
         '''
       }
@@ -49,7 +49,7 @@ pipeline {
         // }
         steps {
             sh '''
-                cd ./05-learning
+                cd ./04-infrastructure
                 terraform validate
             '''
         }
@@ -63,7 +63,7 @@ pipeline {
     //   }
         steps {
           sh '''
-            cd ./05-learning
+            cd ./04-infrastructure
             terraform plan
             '''
         }
@@ -84,7 +84,7 @@ pipeline {
             }
         }
           sh '''
-            cd ./05-learning
+            cd ./04-infrastructure
             terraform init
             terraform destroy -auto-approve
           '''

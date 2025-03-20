@@ -2,13 +2,16 @@
 
 #-----------create RG---------------
 RESOURCE_GROUP_NAME=tfstate
-STORAGE_ACCOUNT_NAME=tfstatenb100
+STORAGE_ACCOUNT_NAME=tfstatenb1010
 CONTAINER_NAME=nbtfstate
 LOCATION="eastus"
+AKS_RG="nbaksclust-rg"
 
 
 # Create resource group
 az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
+
+az group create --name $AKS_RG --location $LOCATION
 
 
 # Create storage account
