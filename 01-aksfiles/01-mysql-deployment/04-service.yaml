@@ -6,6 +6,7 @@ metadata:
 spec:
   selector:
     app: db
+    version: v1
   ports:
     - protocol: TCP
       port: 3306  # MySQL default port

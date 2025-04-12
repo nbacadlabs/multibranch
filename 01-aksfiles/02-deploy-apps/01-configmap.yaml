@@ -5,8 +5,8 @@ metadata:
 data:
   # DEFAULT_PATH: "http://localhost:8000"
   SQL_ENGINE: "django.db.backends.mysql"
-  SQL_DATABASE: "bmJhZG1pbgo="
+  SQL_DATABASE: "bXNkYg=="
   MYSQL_USER: "bmJhZG1pbg=="
-  SQL_PASSWORD: "K0xhcmF2YW4yMDEwCg=="
+  SQL_PASSWORD: "K0xhcmF2YW4yMDEw"
   SQL_HOST: "db"
   SQL_PORT: "3306"

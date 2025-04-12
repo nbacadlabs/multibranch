@@ -1,37 +1,48 @@
 #!/bin/bash
 
 #-----------create RG---------------
-RESOURCE_GROUP_NAME=tfstate
-STORAGE_ACCOUNT_NAME=tfstatenb1010
-CONTAINER_NAME=nbtfstate
+# RESOURCE_GROUP_NAME=tfstate
+# STORAGE_ACCOUNT_NAME=tfstatenb1010
+# CONTAINER_NAME=nbtfstate
 LOCATION="eastus"
 AKS_RG="nbaksclust-rg"
+AKS_NAME="nbakscluster01"
 
 
 # Create resource group
-az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
-
 az group create --name $AKS_RG --location $LOCATION
 
+az aks create \
+  --resource-group $AKS_RG \
+  --name $AKS_NAME \
+  --node-vm-size Standard_D2s_v3 \
+  --node-count 1 \
+  --generate-ssh-keys
 
+# az aks create \
+# --resource-group $AKS_RG \
+# --name $AKS_NAME \
+# --node-count 2 \
+# --generate-ssh-keys 
+# --attach-acr $ACRNAME
 # Create storage account
-az storage account create \
-    --resource-group $RESOURCE_GROUP_NAME \
-    --name $STORAGE_ACCOUNT_NAME \
-    --sku Standard_LRS \
-    --encryption-services blob
+# az storage account create \
+#     --resource-group $RESOURCE_GROUP_NAME \
+#     --name $STORAGE_ACCOUNT_NAME \
+#     --sku Standard_LRS \
+#     --encryption-services blob
 
 # Retrieve storage account key
-ACCOUNT_KEY=$(az storage account keys list \
-    --resource-group $RESOURCE_GROUP_NAME \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --query '[0].value' --output tsv)
+# ACCOUNT_KEY=$(az storage account keys list \
+#     --resource-group $RESOURCE_GROUP_NAME \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --query '[0].value' --output tsv)
 
 # Create blob container with authentication
-az storage container create \
-    --name $CONTAINER_NAME \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --account-key $ACCOUNT_KEY
+# az storage container create \
+#     --name $CONTAINER_NAME \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --account-key $ACCOUNT_KEY
 
 #-----------create the SP-------------
 # SERVICE_PRINCIPAL_NAME="nbsp102"
@@ -63,10 +74,7 @@ az storage container create \
 # az keyvault secret set --vault-name $KEYVAULT_NAME --name "sp-password" --value "$SP_PASSWORD"
 # az keyvault secret set --vault-name $KEYVAULT_NAME --name "sp-tenant-id" --value "$SP_TENANT_ID"
 
-echo "Storage Account: $STORAGE_ACCOUNT_NAME"
-echo "Container: $CONTAINER_NAME"
+# echo "Storage Account: $STORAGE_ACCOUNT_NAME"
+# echo "Container: $CONTAINER_NAME"
 
 # echo "Key Vault: $KEYVAULT_NAME"
-
-
-

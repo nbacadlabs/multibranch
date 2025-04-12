@@ -5,15 +5,18 @@ metadata:
   name: mysql-deployment
   labels:
     app: db
+    version: v1
 spec:
   replicas: 1  # Run a single instance (can increase for high availability)
   selector:
     matchLabels:
       app: db
+      version: v1
   template:
     metadata:
       labels:
         app: db
+        version: v1
     spec:
       containers:
       - name: db
@@ -30,7 +33,10 @@ spec:
                 name: mysql-secret
                 key: root-user  # Secret key for the root password
           - name: MYSQL_DATABASE
-            value: msdb  # The name of the database to create
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: sql-db  # Secret key for the root password
         ports:
           - containerPort: 3306
         volumeMounts:
