@@ -28,3 +28,4 @@ spec:
           image: nginx:1.17.3
           ports:
             - containerPort: 80
+#testing all
