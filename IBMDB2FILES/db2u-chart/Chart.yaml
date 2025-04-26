@@ -1,0 +1,5 @@
+apiVersion: v2
+name: db2u-chart
+description: Helm Chart to deploy IBM Db2 on AKS
+version: 0.1.0
+appVersion: "11.5.9"

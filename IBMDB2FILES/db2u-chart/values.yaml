@@ -1,0 +1,5 @@
+namespace: db2u
+db2uInstance:
+  name: db2oltp-test
+loadBalancer:
+  name: db2-lb
