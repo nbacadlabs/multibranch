@@ -1,0 +1,11 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: olm
+spec:
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-operator-catalog:latest
+  displayName: IBM Operator Catalog
+  publisher: IBM
+

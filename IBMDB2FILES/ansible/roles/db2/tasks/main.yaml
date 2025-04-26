@@ -1,0 +1,31 @@
+- name: Create namespace for Db2
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: "{{ db2_namespace }}"
+  ignore_errors: true
+
+- name: Install IBM Db2 Helm chart
+  community.kubernetes.helm:
+    name: "{{ db2_release_name }}"
+    chart_ref: "{{ db2_chart_ref }}"
+    release_namespace: "{{ db2_namespace }}"
+    values_files:
+      - "{{ db2_chart_values }}"
+    create_namespace: true
+    state: present
+    wait: true
+    db2_helm_timeout: "1800s"
+
+- name: Check Db2 Pod Status
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: "{{ db2_namespace }}"
+  register: db2_pods
+
+- name: Show Db2 pod names and status
+  debug:
+    msg: |
+      {% for pod in db2_pods.resources %}
+      - {{ pod.metadata.name }}: {{ pod.status.phase }}
+      {% endfor %}

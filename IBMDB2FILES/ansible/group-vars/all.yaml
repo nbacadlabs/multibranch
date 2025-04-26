@@ -1,0 +1,5 @@
+db2_namespace: ibm-db2
+db2_release_name: ibm-db2
+db2_chart_ref: ./roles/db2/files/ibm-db2-3.0.2.tgz
+db2_chart_file: ./roles/db2/files/ibm-db2-3.0.2.tgz   # or the path to your helm chart
+db2_chart_values: ./roles/db2/files/db2-values.yaml

@@ -1,0 +1,162 @@
+---
+#StorageClass.yaml
+# Create block disk StorageClass
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azuredisk-premium
+allowVolumeExpansion: true
+provisioner: disk.csi.azure.com
+parameters:
+  skuName: Premium_LRS
+
+---
+# nf-file-Storage.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-nfs
+allowVolumeExpansion: true
+provisioner: file.csi.azure.com
+parameters:
+  protocol: nfs
+  skuName: Premium_LRS
+
+---
+#catalogSource.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-db2uoperator-catalog
+  namespace: olm
+spec:
+  displayName: IBM Db2U Catalog
+  image: icr.io/cpopen/ibm-db2uoperator-catalog@sha256:13d8219d19d6980224200699c4c423332e64de5644b5e5564389012e1a3ff9c1
+  publisher: IBM
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+
+---
+#operatorGroup.yaml
+apiVersion: operators.coreos.com/v1 
+kind: OperatorGroup 
+metadata: 
+  name: db2u-operator-group 
+  namespace: db2u
+spec: 
+  targetNamespaces: 
+  - db2u
+
+---
+#Subscription.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-db2uoperator-catalog-subscription
+  namespace: db2u
+  generation: 1
+spec:
+  channel: v110509.0
+  name: db2u-operator
+  installPlanApproval: Automatic
+  source: ibm-db2uoperator-catalog
+  sourceNamespace: olm
+  startingCSV: db2u-operator.v110509.0.1
+
+---
+# db2-instance.yaml
+apiVersion: db2u.databases.ibm.com/v1
+kind: Db2uInstance
+metadata:
+  name: db2oltp-test
+  namespace: db2u
+spec:
+  environment:
+    authentication:
+      ldap:
+        enabled: false
+    databases:
+    - name: BLUDB
+      storage:
+        - name: data
+          type: template
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 100Gi
+            storageClassName: azuredisk-premium
+        - name: activelogs
+          type: template
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 30Gi
+            storageClassName: azuredisk-premium          
+    dbType: db2oltp 
+  license:
+    accept: true
+  nodes: 1
+  podTemplate:
+    db2u:
+      resource:
+        db2u:
+          limits:
+            cpu: "2"
+            memory: "8Gi"
+  storage:
+  - name: meta
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azurefile-nfs
+    type: create
+  - name: backup
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azurefile-nfs
+    type: create
+  - name: archivelogs
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azurefile-nfs
+    type: create
+  version: s11.5.9.0-cn1
+
+---
+#loadBalancer.yaml
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: db2-lb 
+  namespace: db2u 
+spec: 
+  ports: 
+  - port: 50000 
+    protocol: TCP 
+    targetPort: 50000 
+  selector: 
+    app: aks-db2-demo-eastus-001 
+    component: db2oltp 
+    formation_id: aks-db2-demo-eastus-001 
+    role: db 
+    type: engine 
+  externalTrafficPolicy: Local 
+  type: LoadBalancer
+

@@ -1,0 +1,52 @@
+apiVersion: db2u.databases.ibm.com/v1
+kind: Db2uCluster
+metadata:
+  name: db2oltp-21212121
+  namespace: db2u
+  labels:
+    db2u/cpdbr: db2u
+    cpd_db2: db2oltp
+    cpd_display_name: db2oltp
+spec:
+  version: "11.5.8.0-cn5"
+  environment:
+    dbType: db2oltp
+    database:
+      name: BLUDB
+      settings:
+        dftPageSize: "16384"
+      ssl:
+        certLabel: CN=db2u-ca-cert
+        secretName: db2u-internal-tls
+  license:
+    accept: true
+  account:
+    privileged: true
+  storage:
+    - name: meta
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: managed-nfs-storage
+    - name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: managed-nfs-storage
+  size: 1
+  podConfig:
+    db2u:
+      resource:
+        db2u:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi

@@ -1,0 +1,7 @@
+- name: Install IBM Db2 on AKS using Helm
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ./group-vars/all.yaml
+  roles:
+    - db2

@@ -1,0 +1,71 @@
+apiVersion: db2u.databases.ibm.com/v1
+kind: Db2uInstance
+metadata:
+  name: db2oltp-test
+  namespace: db2u
+spec:
+  environment:
+    authentication:
+      ldap:
+        enabled: false
+    databases:
+    - name: BLUDB
+      storage:
+        - name: data
+          type: template
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 100Gi
+            storageClassName: managed-csi-premium
+        - name: activelogs
+          type: template
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 30Gi
+            storageClassName: managed-csi-premium          
+    dbType: db2oltp 
+  license:
+    accept: true
+  nodes: 1
+  podTemplate:
+    db2u:
+      resource:
+        db2u:
+          limits:
+            cpu: "2"
+            memory: "8Gi"
+  storage:
+  - name: meta
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azurefile-csi-premium
+    type: create
+  - name: backup
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azurefile-csi-premium
+    type: create
+  - name: archivelogs
+    spec:
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: azurefile-csi-premium
+    type: create
+  version: s11.5.9.0-cn1

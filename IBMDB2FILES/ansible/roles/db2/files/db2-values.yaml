@@ -1,0 +1,13 @@
+global:
+  persistence:
+    enabled: true
+    useDynamicProvisioning: true
+    storageClassName: managed-csi
+    size: 100Gi
+
+db2u:
+  edition: standard
+  license:
+    accept: true
+  password:
+    value: admin123

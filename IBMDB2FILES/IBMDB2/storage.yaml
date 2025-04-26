@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-nfs
+provisioner: file.csi.azure.com
+parameters:
+  protocol: nfs
+  skuName: Premium_LRS
+  storageAccount: stdb2blockstoracct2
+  resourceGroup: stdb2filestoracct2
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true

@@ -1,0 +1,21 @@
+global:
+  image:
+    repository: icr.io/db2u/db2
+    tag: "11.5.8.0"
+
+license:
+  accept: true
+
+persistence:
+  enabled: true
+  storageClassName: azurefile  # This is the Azure File CSI driver
+  accessMode: ReadWriteMany
+  size: 50Gi  # Adjust as needed
+  
+ibm-db:
+  dbType: db2oltp
+  db2Instance:
+    db2inst1Password: "ReplaceWithSecurePassword123"
+    db2inst1User: "db2inst1"
+
+
